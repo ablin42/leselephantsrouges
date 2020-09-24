@@ -152,11 +152,11 @@ app.get("/", (req, res) => {
   try {
     let obj = { csrfToken: req.csrfToken() };
 
-    return res.status(200).send("ok"); //.render("index", obj);
+    return res.status(200).render("index", obj);
   } catch (err) {
     console.log("HOME ROUTE ERROR:", err, req.headers, req.ipAddress);
 
-    return res.status(200).send("bide");
+    return res.status(200).render("error");
   }
 });
 
