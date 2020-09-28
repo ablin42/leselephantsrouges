@@ -10,7 +10,10 @@ const csrf = require("csurf");
 const expressSanitizer = require("express-sanitizer");
 const sanitize = require("mongo-sanitize");
 const path = require("path");
+const aws = require('aws-sdk');
 require("dotenv").config();
+
+aws.config.region = 'eu-west-1';
 
 //Connect to DB
 mongoose.connect(
@@ -148,6 +151,38 @@ app.post("/report-violation", (req, res) => {
 
 /* MAIN ROUTE */
 
+app.get('/account', (req, res) => res.render('account.html'));
+
+app.get('/sign-s3', (req, res) => {
+  const s3 = new aws.S3();
+  const fileName = req.query['file-name'];//change
+  const fileType = req.query['file-type'];
+  const s3Params = {
+    Bucket: S3_BUCKET,
+    Key: fileName,
+    Expires: 60,
+    ContentType: fileType,
+    ACL: 'public-read'
+  };
+
+  s3.getSignedUrl('putObject', s3Params, (err, data) => {
+    if(err){
+      console.log(err);
+      return res.end();
+    }
+    const returnData = {
+      signedRequest: data,
+      url: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${fileName}`
+    };
+    res.write(JSON.stringify(returnData));
+    res.end();
+  });
+});
+
+app.post('/save-details', (req, res) => {
+  // TODO: Read POSTed form data and do something useful
+});
+
 app.get("/", (req, res) => {
   try {
     let obj = { csrfToken: req.csrfToken() };
@@ -159,6 +194,18 @@ app.get("/", (req, res) => {
     return res.status(200).render("error");
   }
 });
+
+app.post("/bide", (req, res) => {
+  try {
+    let obj = { csrfToken: req.csrfToken() };
+
+    return res.status(200).send("OK!");
+  } catch (err) {
+    console.log("POST ROUTE ERROR:", err, req.headers, req.ipAddress);
+
+    return res.status(200).send("ERROR!");
+  }
+})
 
 const port = process.env.PORT;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
