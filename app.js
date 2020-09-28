@@ -85,7 +85,8 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       reportUri: "/report-violation",
-      defaultSrc: ["'self'"],
+      defaultSrc: ["'self'", "leselephantsrouges.s3.eu-west-1.amazonaws.com"],
+      connectSrc: ["'self'", "leselephantsrouges.s3.eu-west-1.amazonaws.com"],
       styleSrc: [
         "'self'",
         "stackpath.bootstrapcdn.com",
@@ -110,13 +111,13 @@ app.use(
         "'unsafe-inline'"
       ],
       frameSrc: [],
-      imgSrc: ["'self'"],
+      imgSrc: ["'self'", "leselephantsrouges.s3.amazonaws.com"],
     },
     reportOnly: false,
   })
 );
 
-//app.use(csrf({ cookie: false }));
+app.use(csrf({ cookie: false }));
 
 // Keep session
 app.use((req, res, next) => {
@@ -134,7 +135,7 @@ app.use((req, res, next) => {
 
 app.use(expressSanitizer());
 
-//app.use(cors());
+app.use(cors());
 app.use(flash());
 
 app.post("/report-violation", (req, res) => {
@@ -161,7 +162,7 @@ app.get('/sign-s3', (req, res) => {
   const s3Params = {
     Bucket: process.env.S3_BUCKET,
     Key: fileName,
-    Expires: 60,
+    Expires: 600000,
     ContentType: fileType,
     ACL: 'public-read'
   };
@@ -186,7 +187,7 @@ app.post('/save-details', (req, res) => {
 
 app.get("/", (req, res) => {
   try {
-    let obj = { };//csrfToken: req.csrfToken() };
+    let obj = { csrfToken: req.csrfToken() };
 
     return res.status(200).render("index", obj);
   } catch (err) {
@@ -198,13 +199,15 @@ app.get("/", (req, res) => {
 
 app.post("/bide", (req, res) => {
   try {
-    let obj = { };//csrfToken: req.csrfToken() };
+    let obj = { csrfToken: req.csrfToken() };
 
-    return res.status(200).send("OK!");
+    console.log(req.body);
+
+    return res.status(200).json({error: false, message: "OK!", url: req.body.avatar});
   } catch (err) {
     console.log("POST ROUTE ERROR:", err, req.headers, req.ipAddress);
 
-    return res.status(200).send("ERROR!");
+    return res.status(200).json({error: true, message: "ERROR!"});
   }
 })
 
