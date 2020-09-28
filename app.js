@@ -116,7 +116,7 @@ app.use(
   })
 );
 
-app.use(csrf({ cookie: false }));
+//app.use(csrf({ cookie: false }));
 
 // Keep session
 app.use((req, res, next) => {
@@ -186,7 +186,7 @@ app.post('/save-details', (req, res) => {
 
 app.get("/", (req, res) => {
   try {
-    let obj = { csrfToken: req.csrfToken() };
+    let obj = { };//csrfToken: req.csrfToken() };
 
     return res.status(200).render("index", obj);
   } catch (err) {
@@ -198,7 +198,7 @@ app.get("/", (req, res) => {
 
 app.post("/bide", (req, res) => {
   try {
-    let obj = { csrfToken: req.csrfToken() };
+    let obj = { };//csrfToken: req.csrfToken() };
 
     return res.status(200).send("OK!");
   } catch (err) {
