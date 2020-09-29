@@ -10,24 +10,24 @@ const csrf = require("csurf");
 const expressSanitizer = require("express-sanitizer");
 const sanitize = require("mongo-sanitize");
 const path = require("path");
-const aws = require('aws-sdk');
+const aws = require("aws-sdk");
 require("dotenv").config();
 
-aws.config.region = 'eu-west-1';
+aws.config.region = "eu-west-1"; //
 
 //Connect to DB
 mongoose.connect(
-  process.env.DB_CONNECTION,
-  {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-    useUnifiedTopology: true,
-  },
-  (err) => {
-    if (err) throw err;
-    console.log("Connected to database");
-  }
+	process.env.DB_CONNECTION,
+	{
+		useNewUrlParser: true,
+		useCreateIndex: true,
+		useFindAndModify: false,
+		useUnifiedTopology: true
+	},
+	err => {
+		if (err) throw err;
+		console.log("Connected to database");
+	}
 );
 
 // Express
@@ -40,41 +40,41 @@ app.set("trust proxy", 1);
 
 //-- Express Session --//
 app.use(
-  session({
-    store: new MongoStore({
-      mongooseConnection: mongoose.connection,
-      ttl: 365 * 24 * 60 * 60,
-    }),
-    name: "leselephantsrouges",
-    secret: process.env.SESSION_SECRET,
-    resave: true,
-    //proxy: true,
-    saveUninitialized: true,
-    cookie: {
-      path: "/",
-      maxAge: 14 * 24 * 60 * 60 * 1000,
-      httpOnly: false,
-      secure: false,
-    }, //secure = true (or auto) requires https else it wont work
-    //sameSite: "Lax",
-  })
+	session({
+		store: new MongoStore({
+			mongooseConnection: mongoose.connection,
+			ttl: 365 * 24 * 60 * 60
+		}),
+		name: "leselephantsrouges",
+		secret: process.env.SESSION_SECRET,
+		resave: true,
+		//proxy: true,
+		saveUninitialized: true,
+		cookie: {
+			path: "/",
+			maxAge: 14 * 24 * 60 * 60 * 1000,
+			httpOnly: false,
+			secure: false
+		} //secure = true (or auto) requires https else it wont work
+		//sameSite: "Lax",
+	})
 );
 
 // Body-Parser
 app.use(bodyParser.urlencoded({ extended: true, limit: 25000000 }));
 app.use(
-  bodyParser.json({
-    limit: 25000000,
-  })
+	bodyParser.json({
+		limit: 25000000
+	})
 );
 // BP Error handler
 app.use(function (err, req, res, next) {
-  res.status(err.status || 500);
-  if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
-    req.flash("warning", err.message);
-    return res.status(403).redirect(req.headers.referer);
-  }
-  return res.status(200).json({ error: true, message: err.message });
+	res.status(err.status || 500);
+	if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
+		req.flash("warning", err.message);
+		return res.status(403).redirect(req.headers.referer);
+	}
+	return res.status(200).json({ error: true, message: err.message });
 });
 
 //Helmet;
@@ -82,55 +82,45 @@ app.use(helmet());
 app.use(helmet.permittedCrossDomainPolicies());
 app.use(helmet.referrerPolicy({ policy: "same-origin" }));
 app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      reportUri: "/report-violation",
-      defaultSrc: ["'self'", "leselephantsrouges.s3.eu-west-1.amazonaws.com"],
-      connectSrc: ["'self'", "leselephantsrouges.s3.eu-west-1.amazonaws.com"],
-      styleSrc: [
-        "'self'",
-        "stackpath.bootstrapcdn.com",
-        "kit-free.fontawesome.com",
-        "fonts.googleapis.com",
-      ],
-      fontSrc: [
-        "'self'",
-        "fonts.googleapis.com",
-        "kit-free.fontawesome.com",
-        "fonts.gstatic.com",
-      ],
-      scriptSrc: [
-        "'self'",
-        "kit.fontawesome.com",
-        "stackpath.bootstrapcdn.com",
-        "www.gstatic.com",
-        "cdn.jsdelivr.net",
-        "cdnjs.cloudflare.com",
-        "stackpath.bootstrapcdn.com",
-        "kit.fontawesome.com",
-        "'unsafe-inline'"
-      ],
-      frameSrc: [],
-      imgSrc: ["'self'", "leselephantsrouges.s3.amazonaws.com"],
-    },
-    reportOnly: false,
-  })
+	helmet.contentSecurityPolicy({
+		directives: {
+			reportUri: "/report-violation",
+			defaultSrc: ["'self'", "leselephantsrouges.s3.eu-west-1.amazonaws.com"],
+			connectSrc: ["'self'", "leselephantsrouges.s3.eu-west-1.amazonaws.com"],
+			styleSrc: ["'self'", "stackpath.bootstrapcdn.com", "kit-free.fontawesome.com", "fonts.googleapis.com"],
+			fontSrc: ["'self'", "fonts.googleapis.com", "kit-free.fontawesome.com", "fonts.gstatic.com"],
+			scriptSrc: [
+				"'self'",
+				"kit.fontawesome.com",
+				"stackpath.bootstrapcdn.com",
+				"www.gstatic.com",
+				"cdn.jsdelivr.net",
+				"cdnjs.cloudflare.com",
+				"stackpath.bootstrapcdn.com",
+				"kit.fontawesome.com",
+				"'unsafe-inline'"
+			],
+			frameSrc: [],
+			imgSrc: ["'self'", "leselephantsrouges.s3.amazonaws.com"]
+		},
+		reportOnly: false
+	})
 );
 
 app.use(csrf({ cookie: false }));
 
 // Keep session
 app.use((req, res, next) => {
-  res.locals.session = req.session;
-  next();
+	res.locals.session = req.session;
+	next();
 });
 
 // Sanitize body and query params
 app.use((req, res, next) => {
-  req.body = sanitize(req.body);
-  req.query = sanitize(req.query);
+	req.body = sanitize(req.body);
+	req.query = sanitize(req.query);
 
-  next();
+	next();
 });
 
 app.use(expressSanitizer());
@@ -139,13 +129,13 @@ app.use(cors());
 app.use(flash());
 
 app.post("/report-violation", (req, res) => {
-  if (req.body) {
-    console.log("CSP Violation: ", req.ip, req.body);
-  } else {
-    console.log("CSP Violation: No data received!", req.ip);
-  }
+	if (req.body) {
+		console.log("CSP Violation: ", req.ip, req.body);
+	} else {
+		console.log("CSP Violation: No data received!", req.ip);
+	}
 
-  res.status(204).end();
+	res.status(204).end();
 });
 
 //const contactRoute = require("./controllers/contact");
@@ -153,63 +143,73 @@ app.post("/report-violation", (req, res) => {
 
 /* MAIN ROUTE */
 
-app.get('/account', (req, res) => res.render('account.html'));
+app.get("/account", (req, res) => {
+	try {
+		return res.render("account", { imageurl: req.query.url });
+	} catch (err) {
+		console.log("ACCOUNT ROUTE ERROR:", err, req.headers, req.ipAddress);
 
-app.get('/sign-s3', (req, res) => {
-  const s3 = new aws.S3();
-  const fileName = req.query['file-name'];//change
-  const fileType = req.query['file-type'];
-  const s3Params = {
-    Bucket: process.env.S3_BUCKET,
-    Key: fileName,
-    Expires: 600000,
-    ContentType: fileType,
-    ACL: 'public-read'
-  };
-
-  s3.getSignedUrl('putObject', s3Params, (err, data) => {
-    if(err){
-      console.log(err);
-      return res.end();
-    }
-    const returnData = {
-      signedRequest: data,
-      url: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${fileName}`
-    };
-    res.write(JSON.stringify(returnData));
-    res.end();
-  });
+		return res.status(200).json({ error: true, message: err.message });
+	}
 });
 
-app.post('/save-details', (req, res) => {
-  // TODO: Read POSTed form data and do something useful
+app.get("/sign-s3", (req, res) => {
+	try {
+		const s3 = new aws.S3();
+		const fileName = req.query["file-name"]; //change
+		const fileType = req.query["file-type"];
+		const s3Params = {
+			Bucket: process.env.S3_BUCKET,
+			Key: fileName,
+			Expires: 600000,
+			ContentType: fileType,
+			ACL: "public-read"
+		};
+
+		s3.getSignedUrl("putObject", s3Params, (err, data) => {
+			if (err) throw new Error("An error occured while signing the file!");
+			const returnData = {
+				signedRequest: data,
+				url: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${fileName}`
+			};
+			return res.status(200).json({
+				error: false,
+				data: returnData
+			});
+		});
+	} catch (err) {
+		console.log("SIGN S3 ERROR:", err, req.headers, req.ipAddress);
+
+		return res.status(200).json({ error: true, message: err.message });
+	}
 });
 
 app.get("/", (req, res) => {
-  try {
-    let obj = { csrfToken: req.csrfToken() };
+	try {
+		let obj = { csrfToken: req.csrfToken() };
 
-    return res.status(200).render("index", obj);
-  } catch (err) {
-    console.log("HOME ROUTE ERROR:", err, req.headers, req.ipAddress);
+		return res.status(200).render("index", obj);
+	} catch (err) {
+		console.log("HOME ROUTE ERROR:", err, req.headers, req.ipAddress);
 
-    return res.status(200).render("error");
-  }
+		return res.status(200).render("error");
+	}
 });
 
-app.post("/bide", (req, res) => {
-  try {
-    let obj = { csrfToken: req.csrfToken() };
+app.post("/save-details", (req, res) => {
+	try {
+		let obj = { csrfToken: req.csrfToken() };
 
-    console.log(req.body);
+		console.log(req.body);
+		//save form data
 
-    return res.status(200).json({error: false, message: "OK!", url: req.body.avatar});
-  } catch (err) {
-    console.log("POST ROUTE ERROR:", err, req.headers, req.ipAddress);
+		return res.status(200).json({ error: false, message: "OK!", url: req.body.avatar });
+	} catch (err) {
+		console.log("POST ROUTE ERROR:", err, req.headers, req.ipAddress);
 
-    return res.status(200).json({error: true, message: "ERROR!"});
-  }
-})
+		return res.status(200).json({ error: true, message: "ERROR!" });
+	}
+});
 
 const port = process.env.PORT;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
