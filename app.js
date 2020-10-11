@@ -12,8 +12,12 @@ const sanitize = require("mongo-sanitize");
 const path = require("path");
 const aws = require("aws-sdk");
 require("dotenv").config();
+aws.config.region = process.env.AWS_REGION;
 
-aws.config.region = "eu-west-1"; //
+const contactRoute = require("./controllers/contact");
+const authRoute = require("./controllers/auth");
+const videosRoute = require("./controllers/videos");
+const eventsRoute = require("./controllers/events");
 
 //Connect to DB
 mongoose.connect(
@@ -128,6 +132,11 @@ app.use(expressSanitizer());
 app.use(cors());
 app.use(flash());
 
+app.use("/api/contact", contactRoute);
+app.use("/api/auth", authRoute);
+app.use("/api/events", eventsRoute);
+app.use("/api/videos", videosRoute);
+
 app.post("/report-violation", (req, res) => {
 	if (req.body) {
 		console.log("CSP Violation: ", req.ip, req.body);
@@ -138,9 +147,6 @@ app.post("/report-violation", (req, res) => {
 	res.status(204).end();
 });
 
-//const contactRoute = require("./controllers/contact");
-//app.use("/api/contact", contactRoute);
-
 /* MAIN ROUTE */
 
 app.get("/account", (req, res) => {
@@ -148,37 +154,6 @@ app.get("/account", (req, res) => {
 		return res.render("account", { imageurl: req.query.url });
 	} catch (err) {
 		console.log("ACCOUNT ROUTE ERROR:", err, req.headers, req.ipAddress);
-
-		return res.status(200).json({ error: true, message: err.message });
-	}
-});
-
-app.get("/sign-s3", (req, res) => {
-	try {
-		const s3 = new aws.S3();
-		const fileName = req.query["file-name"]; //change
-		const fileType = req.query["file-type"];
-		const s3Params = {
-			Bucket: process.env.S3_BUCKET,
-			Key: fileName,
-			Expires: 600000,
-			ContentType: fileType,
-			ACL: "public-read"
-		};
-
-		s3.getSignedUrl("putObject", s3Params, (err, data) => {
-			if (err) throw new Error("An error occured while signing the file!");
-			const returnData = {
-				signedRequest: data,
-				url: `https://${process.env.S3_BUCKET}.s3.amazonaws.com/${fileName}`
-			};
-			return res.status(200).json({
-				error: false,
-				data: returnData
-			});
-		});
-	} catch (err) {
-		console.log("SIGN S3 ERROR:", err, req.headers, req.ipAddress);
 
 		return res.status(200).json({ error: true, message: err.message });
 	}

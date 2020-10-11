@@ -1,0 +1,29 @@
+.form-info {
+	font-size: 15px;
+	text-align: left;
+	width: 100%;
+	font-style: italic;
+	color: #ff7180;
+	display: none;
+	text-indent: 5px;
+	font-weight: bold;
+	margin: 3px 0 -3px 0;
+}
+
+.form-info b {
+	font-size: 14px;
+	color: black;
+}
+
+i[data-type="showpw"] {
+	color: blue;
+	cursor: pointer;
+}
+
+i[data-type="showpw"]:hover {
+	color: green;
+}
+
+.active-showpw {
+	color: green !important;
+}
