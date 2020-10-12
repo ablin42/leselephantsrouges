@@ -20,7 +20,7 @@ async function submitContact(e) {
 			"Content-Type": "application/json",
 			"CSRF-Token": csrfToken
 		},
-		body: JSON.stringify({ mail: email, title: title, content: content })
+		body: JSON.stringify({ email: email, title: title, content: content })
 	});
 	response = await response.json();
 
