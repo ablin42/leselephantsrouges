@@ -35,8 +35,8 @@ if (dpw2)
 function getInvalid(formId) {
 	let submitId = "submit-" + formId,
 		submit = document.getElementById(submitId),
-		form = $(`#${formId}`),
-		invalids = form.find(".invalid");
+		form = document.querySelector(`#${formId}`),
+		invalids = form.querySelectorAll(".invalid");
 
 	submit.removeAttribute("disabled");
 	if (invalids.length > 0) submit.setAttribute("disabled", "");
@@ -140,8 +140,8 @@ let Validate = {
 
 function readURL(input) {
 	if (input.files && input.files[0]) {
-		$("#imglabel").addClass("imguploaded");
+		document.querySelector("#imglabel").addClass("imguploaded");
 	} else {
-		$("#imglabel").removeClass("imguploaded");
+		document.querySelector("#imglabel").removeClass("imguploaded");
 	}
 }

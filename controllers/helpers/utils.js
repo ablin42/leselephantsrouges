@@ -1,9 +1,15 @@
 const pe = require("parse-error");
 //const Image = require("../../models/Image");
+const User = require("../../models/User");
 const { validationResult } = require("express-validator");
 const mime = require("mime-types");
 
 module.exports = {
+	emailExist: async function emailExist(email) {
+		if (await User.findOne({ email: email })) return true;
+
+		return false;
+	},
 	to: function (promise) {
 		return promise
 			.then(data => {

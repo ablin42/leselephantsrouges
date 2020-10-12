@@ -7,16 +7,16 @@
 
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="csrf-token" content="<%= locals.csrfToken %>" />
+		<meta name="csrf-token" content="<%= locals.csrfToken %>" />
 		<meta name="keywords" content="" />
 		<!-- add keywords -->
 		<meta name="author" content="" />
-		<title><%= (locals.active) ? locals.active : 'Les elephants rouges' %></title>
-		<!-- JQuery
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>-->
+		<title><%= (locals.active) ? locals.active : 'Les éléphants rouges' %></title>
+		<!-- JQuery -->
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 		<!-- FontAwesome Icons -->
 		<script src="https://kit.fontawesome.com/ba18cbd714.js"></script>
-		<!-- Bootstrap
+		<!-- Bootstrap -->
 		<link
 			rel="stylesheet"
 			href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
@@ -27,8 +27,23 @@
 			src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
 			integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
 			crossorigin="anonymous"
-		></script>-->
+		></script>
 		<!-- CUSTOM -->
+		<script src="/scripts/core/alert.js"></script>
+
 		<link rel="icon" href="/favicon.png" />
 		<link rel="stylesheet" href="/main.css" />
 	</head>
+
+	<body>
+		<div id="header">
+			<% if (messages){ %> <% Object.keys(messages).forEach(function (type) { %> <% messages[type].forEach(function (message) { %>
+				<div id="alert" class="alert alert-<%= type %>" role="alert">
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<%= message %>
+				</div>
+			<% }) %> <% }) %> <% } %>
+		</div>
+</html>

@@ -1,6 +1,3 @@
-const signUpButton = document.getElementById("signUp");
-const signInButton = document.getElementById("signIn");
-const container = document.getElementById("container");
 let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
 let lostpw = document.querySelector("[data-lostpw]");
 let log = document.querySelector("[data-sublogin]");
@@ -24,7 +21,6 @@ if (reg)
 async function submitRegister(e) {
 	e.preventDefault();
 
-	const name = document.querySelector("#name").value;
 	const email = document.querySelector("#email").value;
 	const password = document.querySelector("#password").value;
 	const password2 = document.querySelector("#password2").value;
@@ -36,18 +32,16 @@ async function submitRegister(e) {
 			"Content-Type": "application/json",
 			"CSRF-Token": csrfToken
 		},
-		body: JSON.stringify({ name: name, email: email, password: password, password2: password2 })
+		body: JSON.stringify({ email: email, password: password, password2: password2 })
 	});
 	response = await response.json();
 
 	let alertType = "success";
 	if (response.error === true) alertType = "warning";
 	else {
-		document.querySelector("#name").value = "";
 		document.querySelector("#email").value = "";
 		document.querySelector("#password").value = "";
 		document.querySelector("#password2").value = "";
-		signInButton.click();
 	}
 
 	let alert = createAlertNode(response.message, alertType);
@@ -70,8 +64,7 @@ async function submitLogin(e) {
 		body: JSON.stringify({ email: email, password: password })
 	});
 	response = await response.json();
-
-	if (response.error === false) return (window.location.href = "/");
+	if (response.error === false) return (window.location.href = "/Admin");
 
 	let alert = createAlertNode(response.message, "warning");
 	addAlert(alert, "#header");
@@ -82,7 +75,7 @@ async function submitLostpw(e) {
 
 	const email = document.querySelector("#email-reset").value;
 
-	let response = await fetch("/api/user/lostpw", {
+	let response = await fetch("/api/auth/lostpw", {
 		method: "POST",
 		headers: {
 			"Accept": "application/json, text/plain, */*",
@@ -92,7 +85,7 @@ async function submitLostpw(e) {
 		body: JSON.stringify({ email: email })
 	});
 	response = await response.json();
-	if (response.error === false) return (window.location.href = "/Login");
+	if (response.error === false) return (window.location.href = "/Auth");
 
 	let alert = createAlertNode(response.message, "warning");
 	addAlert(alert, "#header");

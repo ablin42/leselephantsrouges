@@ -14,6 +14,7 @@ const aws = require("aws-sdk");
 require("dotenv").config();
 aws.config.region = process.env.AWS_REGION;
 
+const pagesRoute = require("./controllers/pages");
 const contactRoute = require("./controllers/contact");
 const authRoute = require("./controllers/auth");
 const videosRoute = require("./controllers/videos");
@@ -132,10 +133,12 @@ app.use(expressSanitizer());
 app.use(cors());
 app.use(flash());
 
+// Routes
+app.use("/", pagesRoute);
 app.use("/api/contact", contactRoute);
 app.use("/api/auth", authRoute);
-app.use("/api/events", eventsRoute);
-app.use("/api/videos", videosRoute);
+//app.use("/api/events", eventsRoute);
+//app.use("/api/videos", videosRoute);
 
 app.post("/report-violation", (req, res) => {
 	if (req.body) {
@@ -145,45 +148,6 @@ app.post("/report-violation", (req, res) => {
 	}
 
 	res.status(204).end();
-});
-
-/* MAIN ROUTE */
-
-app.get("/account", (req, res) => {
-	try {
-		return res.render("account", { imageurl: req.query.url });
-	} catch (err) {
-		console.log("ACCOUNT ROUTE ERROR:", err, req.headers, req.ipAddress);
-
-		return res.status(200).json({ error: true, message: err.message });
-	}
-});
-
-app.get("/", (req, res) => {
-	try {
-		let obj = { csrfToken: req.csrfToken() };
-
-		return res.status(200).render("index", obj);
-	} catch (err) {
-		console.log("HOME ROUTE ERROR:", err, req.headers, req.ipAddress);
-
-		return res.status(200).render("error");
-	}
-});
-
-app.post("/save-details", (req, res) => {
-	try {
-		let obj = { csrfToken: req.csrfToken() };
-
-		console.log(req.body);
-		//save form data
-
-		return res.status(200).json({ error: false, message: "OK!", url: req.body.avatar });
-	} catch (err) {
-		console.log("POST ROUTE ERROR:", err, req.headers, req.ipAddress);
-
-		return res.status(200).json({ error: true, message: "ERROR!" });
-	}
 });
 
 const port = process.env.PORT;
