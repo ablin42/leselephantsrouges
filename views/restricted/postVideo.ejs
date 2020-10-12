@@ -1,0 +1,45 @@
+<%- include('../partials/head'); -%>
+
+<h1>bide videos</h1>
+<div class="container">
+	<h1 class="text-center">Add video</h1>
+
+	<form class="col-md-6 offset-md-3 text-center" id="video" method="POST" action="/api/videos/">
+		<div class="row">
+			<label class="control-label">Lien youtube</label>
+			<input placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" type="url" id="url" name="url" data-vUrl="true" value="<% if (locals.formData) { %><%= locals.formData.url %><% } %>" required />
+			<span id="i_url" class="form-info">Le lien <b>youtube</b> n'est pas au bon <b>format</b></span>
+
+			<label class="control-label">Titre</label>
+			<input placeholder="Notre super réal" type="text" id="title" name="title" data-vstring="1;256" value="<% if (locals.formData) { %><%= locals.formData.title %><% } %>" required />
+			<span id="i_title" class="form-info">Le <b>titre</b> doit faire entre <b>1 et 256 caractères</b></span>
+
+			<label class="control-label">Description</label>
+			<textarea
+				placeholder="La description de notre super réal"
+				id="description"
+				name="description"
+				data-vstring="1;2048"
+				rows="5"
+				value="<% if (locals.formData) { %><%= locals.formData.description %><% } %>"
+				required
+			></textarea>
+			<span id="i_description" class="form-info">La <b>description</b> doit faire entre <b>1 et 2048 caractères</b></span>
+
+			<label class="control-label">Auteurs (séparés par un ';')</label>
+			<input placeholder="Jean Dupont; Mr propre" type="text" id="authors" name="authors" value="<% if (locals.formData) { %><%= locals.formData.authors %><% } %>" />
+
+			<input type="checkbox" name="isFiction" id="isFiction" value="<% if (locals.formData) { %><%= locals.formData.isFiction %><% } %>" />
+
+			<h2>img input cover here</h2>
+
+			<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>" />
+			<input type="submit" class="submit-btn" value="Ajouter la vidéo" id="submit-video" />
+		</div>
+	</form>
+</div>
+
+<script src="/scripts/core/validation.js" defer></script>
+<script src="/scripts/submitVideo.js" defer></script>
+
+<%- include('../partials/footer'); -%>

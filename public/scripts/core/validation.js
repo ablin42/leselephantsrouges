@@ -1,5 +1,6 @@
 let dstring = document.querySelectorAll("[data-vstring]");
 let demail = document.querySelectorAll("input[data-vemail]");
+let dUrl = document.querySelectorAll("input[data-vUrl]");
 let dpw = document.querySelectorAll("input[data-vpw]");
 let dpw2 = document.querySelectorAll("input[data-vpw2]");
 
@@ -29,6 +30,13 @@ if (dpw2)
 	dpw2.forEach(item => {
 		item.addEventListener("keyup", function () {
 			Validate.Password2(item);
+		});
+	});
+
+if (dUrl)
+	dUrl.forEach(item => {
+		item.addEventListener("keyup", function () {
+			Validate.Url(item);
 		});
 	});
 
@@ -134,6 +142,31 @@ let Validate = {
 			password2.classList.remove("invalid");
 			password2.classList.remove("valid");
 		}
+		getInvalid(formId);
+	},
+	Url: function (item) {
+		let inputId = item.id,
+			spanInfo = document.getElementById(`i_${inputId}`),
+			formId = item.form.id;
+		value = item.value;
+		let result = value.match(/youtube.com\/.*/);
+
+		if (!result) {
+			spanInfo.style.display = "inline-block";
+			item.classList.add("invalid");
+		} else if (result == "bide") {
+			spanInfo.style.display = "none";
+			item.classList.remove("invalid");
+			item.classList.add("valid");
+		} else {
+			spanInfo.style.display = "none";
+			item.classList.remove("invalid");
+			item.classList.remove("valid");
+		}
+
+		//if (item.value.length !== 0 && (item.value.length < min || item.value.length > max)) {
+		//} else if (item.value.length >= min || item.value.length <= max) {
+
 		getInvalid(formId);
 	}
 };

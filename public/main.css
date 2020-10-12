@@ -27,4 +27,27 @@ i[data-type="showpw"]:hover {
 .active-showpw {
   color: green !important;
 }
+
+.admin-panel {
+  padding: 175px 100px;
+}
+
+.admin-section-block {
+  display: block;
+  background: grey;
+  color: white;
+  font-size: 36px;
+  padding: 40px 10px;
+  text-align: center;
+  margin: 15px;
+  text-decoration: none;
+  -webkit-transition: ease-in-out 0.3s;
+  transition: ease-in-out 0.3s;
+}
+
+.admin-section-block:hover {
+  background-color: black;
+  color: var(--interactive-color);
+  text-decoration: none;
+}
 /*# sourceMappingURL=main.css.map */

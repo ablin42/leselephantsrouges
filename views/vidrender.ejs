@@ -1,0 +1,31 @@
+<%- include('partials/head'); -%>
+
+<h1>vid renders</h1>
+
+<% if (locals.videos){ %> <% Object.keys(locals.videos).forEach(function (index) { %>
+<div class="" id="<%= locals.videos[index]._id %>">
+	<h1><%= locals.videos[index].title %></h1>
+	<br />
+	<p><%= locals.videos[index].description %></p>
+	<br />
+	<h2>isFiction: <%= locals.videos[index].isFiction %></h2>
+	<br />
+	<h3><%= locals.videos[index].date %></h3>
+	<br />
+	<h4>Authors:</h4>
+	<% locals.videos[index].authors.forEach(function (author) { %> <%= author %> <% }) %>
+	<br />
+	<iframe
+		width="560"
+		height="315"
+		src="<%= locals.videos[index].url %>"
+		frameborder="0"
+		allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+		allowfullscreen
+	></iframe>
+</div>
+<% }) %> <% } else { %>
+<div class="text-center bwhite">
+	<h1>Gallery page is under maintenance, please come back later</h1>
+</div>
+<% } %> <%- include('partials/footer'); -%>

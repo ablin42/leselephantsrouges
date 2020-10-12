@@ -74,5 +74,20 @@ module.exports = {
 		if (arr.length <= 0) throw new Error("An error occured while parsing file URL");
 
 		return arr;
+	},
+	parseAuthors: async function (authors) {
+		let arr = authors.split(";");
+		if (arr[arr.length - 1] == "") arr.pop();
+
+		return arr;
+	},
+	parseUrl: async function (url) {
+		let parsedUrl = "https://www.youtube.com/embed/";
+		let matched = url.match(/v=[^\s&]*/);
+
+		if (!matched) throw new Error("Le lien youtube n'est pas au bon format");
+		parsedUrl += matched[0].substr(2);
+
+		return parsedUrl;
 	}
 };

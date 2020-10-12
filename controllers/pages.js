@@ -9,11 +9,35 @@ const { ERROR_MESSAGE } = require("./helpers/errorMessages");
 const PwToken = require("../models/PasswordToken");
 require("dotenv").config();
 
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
 	try {
 		let obj = { csrfToken: req.csrfToken() };
 
 		return res.status(200).render("index", obj);
+	} catch (err) {
+		console.log("HOME ROUTE ERROR:", err, req.headers, req.ipAddress);
+
+		return res.status(200).render("error");
+	}
+});
+
+router.get("/vidrender", async (req, res) => {
+	try {
+		let obj = {
+			active: "vidrenders",
+			csrfToken: req.csrfToken()
+		};
+
+		let options = {
+			method: "GET",
+			uri: `${process.env.BASEURL}/api/videos/`,
+			json: true
+		};
+		let response = await rp(options);
+		if (response.error === false) obj.videos = response.videos;
+		else throw new Error(response.message);
+
+		return res.status(200).render("vidrender", obj);
 	} catch (err) {
 		console.log("HOME ROUTE ERROR:", err, req.headers, req.ipAddress);
 
@@ -78,6 +102,60 @@ router.get("/Admin", setUser, authUser, authRole(ROLE.ADMIN), async (req, res) =
 		console.log("ADMIN ROUTE ERROR", err, req.headers, req.ipAddress);
 		req.flash("warning", err.message);
 		return res.status(400).redirect("/Auth");
+	}
+});
+
+router.get("/Admin/Settings", setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
+	try {
+		let obj = {
+			active: "Admin Settings",
+			headtitle: "Les éléphants rouges | Admin Settings",
+			description: "Les éléphants rouges, settings section",
+			user: req.user,
+			csrfToken: req.csrfToken()
+		};
+
+		return res.status(200).render("restricted/settings", obj);
+	} catch (err) {
+		console.log("ADMIN ROUTE ERROR", err, req.headers, req.ipAddress);
+		req.flash("warning", err.message);
+		return res.status(400).redirect("/Admin");
+	}
+});
+
+router.get("/Admin/Videos", setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
+	try {
+		let obj = {
+			active: "Admin Videos",
+			headtitle: "Les éléphants rouges | Admin Videos",
+			description: "Les éléphants rouges, videos section",
+			user: req.user,
+			csrfToken: req.csrfToken()
+		};
+
+		return res.status(200).render("restricted/postVideo", obj);
+	} catch (err) {
+		console.log("ADMIN VIDEOS ROUTE ERROR", err, req.headers, req.ipAddress);
+		req.flash("warning", err.message);
+		return res.status(400).redirect("/Admin");
+	}
+});
+
+router.get("/Admin/Events", setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
+	try {
+		let obj = {
+			active: "Admin Events",
+			headtitle: "Les éléphants rouges | Admin",
+			description: "Les éléphants rouges, events section",
+			user: req.user,
+			csrfToken: req.csrfToken()
+		};
+
+		return res.status(200).render("restricted/postEvent", obj);
+	} catch (err) {
+		console.log("ADMIN EVENTS ROUTE ERROR", err, req.headers, req.ipAddress);
+		req.flash("warning", err.message);
+		return res.status(400).redirect("/Admin");
 	}
 });
 

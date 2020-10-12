@@ -58,10 +58,11 @@ app.use(
 		cookie: {
 			path: "/",
 			maxAge: 14 * 24 * 60 * 60 * 1000,
-			httpOnly: false,
-			secure: false
+			httpOnly: false
+			//sameSite: "none",
+			//secure: true
 		} //secure = true (or auto) requires https else it wont work
-		//sameSite: "Lax",
+		//sameSite: "Lax"
 	})
 );
 
@@ -90,7 +91,7 @@ app.use(
 	helmet.contentSecurityPolicy({
 		directives: {
 			reportUri: "/report-violation",
-			defaultSrc: ["'self'", "leselephantsrouges.s3.eu-west-1.amazonaws.com"],
+			defaultSrc: ["'self'", "leselephantsrouges.s3.eu-west-1.amazonaws.com", "www.youtube-nocookie.com", "www.youtube.com"],
 			connectSrc: ["'self'", "leselephantsrouges.s3.eu-west-1.amazonaws.com"],
 			styleSrc: ["'self'", "stackpath.bootstrapcdn.com", "kit-free.fontawesome.com", "fonts.googleapis.com"],
 			fontSrc: ["'self'", "fonts.googleapis.com", "kit-free.fontawesome.com", "fonts.gstatic.com"],
@@ -103,9 +104,11 @@ app.use(
 				"cdnjs.cloudflare.com",
 				"stackpath.bootstrapcdn.com",
 				"kit.fontawesome.com",
+				"www.youtube.com/iframe_api", //
+				"s.ytimg.com", //
 				"'unsafe-inline'"
 			],
-			frameSrc: [],
+			frameSrc: ["www.youtube-nocookie.com", "www.youtube.com"],
 			imgSrc: ["'self'", "leselephantsrouges.s3.amazonaws.com"]
 		},
 		reportOnly: false
@@ -138,7 +141,7 @@ app.use("/", pagesRoute);
 app.use("/api/contact", contactRoute);
 app.use("/api/auth", authRoute);
 //app.use("/api/events", eventsRoute);
-//app.use("/api/videos", videosRoute);
+app.use("/api/videos", videosRoute);
 
 app.post("/report-violation", (req, res) => {
 	if (req.body) {
