@@ -2,6 +2,22 @@ const { body, sanitizeParam } = require("express-validator");
 const utils = require("../helpers/utils");
 const { ERROR_MESSAGE } = require("../helpers/errorMessages");
 
+module.exports.vEmail = [
+	body("email")
+		.trim()
+		.isEmail()
+		.withMessage(ERROR_MESSAGE.emailInvalid)
+		.bail()
+		.normalizeEmail()
+		.isLength({ min: 3, max: 256 })
+		.withMessage(ERROR_MESSAGE.emailLength)
+		.custom(value => {
+			return utils.emailExist(value).then(email => {
+				if (email) return Promise.reject(ERROR_MESSAGE.emailTaken);
+			});
+		})
+];
+
 module.exports.vPassword = [
 	body("password")
 		.isLength({ min: 8, max: 256 })
