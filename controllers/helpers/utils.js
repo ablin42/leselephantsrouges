@@ -1,5 +1,5 @@
 const pe = require("parse-error");
-//const Image = require("../../models/Image");
+const Image = require("../../models/Image");
 const User = require("../../models/User");
 const { validationResult } = require("express-validator");
 const mime = require("mime-types");
@@ -37,15 +37,11 @@ module.exports = {
 
 		return parsed.join(" ");
 	},
-	/*saveImages: async function (imgData, itemId, itemType, operation = "save") {
+	saveImages: async function (imgData, itemId, itemType) {
 		for (let i = 0; i < imgData.length; i++) {
-			let isMain = false;
-			if (i === 0 && operation === "save") isMain = true;
-
 			let image = new Image({
 				_itemId: itemId,
 				itemType: itemType,
-				isMain: isMain,
 				path: imgData[i].path,
 				mimetype: mime.lookup(imgData[i].path),
 				key: imgData[i].key
@@ -54,7 +50,19 @@ module.exports = {
 			[err, savedImage] = await this.to(image.save());
 			if (err || !savedImage) return ERROR_MESSAGE.saveError;
 		}
-	},*/
+	},
+	patchImages: async function (imgData, itemId, itemType) {
+		for (let i = 0; i < imgData.length; i++) {
+			let obj = {
+				path: imgData[i].path,
+				mimetype: mime.lookup(imgData[i].path),
+				key: imgData[i].key
+			};
+
+			[err, patchedImg] = await this.to(Image.findOneAndUpdate({ _itemId: itemId, itemType: itemType }, { $set: obj }));
+			if (err || !patchedImg) return ERROR_MESSAGE.saveError;
+		}
+	},
 	checkValidity: async function (req) {
 		const vResult = validationResult(req);
 		if (!vResult.isEmpty()) {
@@ -87,6 +95,15 @@ module.exports = {
 
 		if (!matched) throw new Error("Le lien youtube n'est pas au bon format");
 		parsedUrl += matched[0].substr(2);
+
+		return parsedUrl;
+	},
+	revertUrlFormat: async function (url) {
+		let parsedUrl = "https://www.youtube.com/watch?v=";
+		let matched = url.match(/embed\/[^\s&]*/);
+
+		if (!matched) throw new Error("Une erreur est survenue lors de la conversion de l'URL");
+		parsedUrl += matched[0].substr(6);
 
 		return parsedUrl;
 	}

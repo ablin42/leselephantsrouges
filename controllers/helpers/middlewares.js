@@ -4,6 +4,8 @@ require("dotenv").config();
 const utils = require("./utils");
 const sanitize = require("mongo-sanitize");
 const User = require("../../models/User");
+const Video = require("../../models/Video");
+const Image = require("../../models/Image");
 const { ERROR_MESSAGE } = require("./errorMessages");
 
 const ROLE = {
@@ -62,6 +64,27 @@ function authToken(req, res, next) {
 	next();
 }
 
+async function setVideo(req, res, next) {
+	const id = sanitize(req.params.id);
+
+	let [err, video] = await utils.to(Video.findById(id));
+	if (err || !video) {
+		if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
+			req.flash("warning", ERROR_MESSAGE.noResult);
+			return res.status(404).redirect("/Admin");
+		}
+		return res.status(200).json({ url: "/Admin", message: ERROR_MESSAGE.noResult, err: true });
+	}
+	req.video = JSON.parse(JSON.stringify(video));
+
+	[err, img] = await utils.to(Image.findOne({ itemType: "cover", _itemId: video._id }));
+	if (err) throw new Error(ERROR_MESSAGE.fetchImg);
+	if (!img) throw new Error(ERROR_MESSAGE.noResult);
+	req.video.mainImg = img.path;
+
+	next();
+}
+
 function errorHandler(err, req, res, next) {
 	if (res.headersSent) return next(err);
 
@@ -76,5 +99,6 @@ module.exports = {
 	notLoggedUser,
 	authUser,
 	authRole,
-	authToken
+	authToken,
+	setVideo
 };

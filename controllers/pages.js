@@ -5,6 +5,8 @@ const sanitize = require("mongo-sanitize");
 
 const { ROLE, setUser, notLoggedUser, authUser, authRole } = require("./helpers/middlewares");
 const utils = require("./helpers/utils");
+const Video = require("../models/Video");
+const Image = require("../models/Image");
 const { ERROR_MESSAGE } = require("./helpers/errorMessages");
 const PwToken = require("../models/PasswordToken");
 require("dotenv").config();
@@ -21,11 +23,12 @@ router.get("/", async (req, res) => {
 	}
 });
 
-router.get("/vidrender", async (req, res) => {
+router.get("/vidrender", setUser, async (req, res) => {
 	try {
 		let obj = {
 			active: "vidrenders",
-			csrfToken: req.csrfToken()
+			csrfToken: req.csrfToken(),
+			user: req.user
 		};
 
 		let options = {
@@ -134,6 +137,35 @@ router.get("/Admin/Videos", setUser, authUser, authRole(ROLE.ADMIN), async (req,
 		};
 
 		return res.status(200).render("restricted/postVideo", obj);
+	} catch (err) {
+		console.log("ADMIN VIDEOS ROUTE ERROR", err, req.headers, req.ipAddress);
+		req.flash("warning", err.message);
+		return res.status(400).redirect("/Admin");
+	}
+});
+
+router.get("/Admin/Videos/Patch/:id", setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
+	try {
+		let obj = {
+			active: "Admin Videos Edit",
+			headtitle: "Les éléphants rouges | Admin Videos Edit",
+			description: "Les éléphants rouges, videos section",
+			user: req.user,
+			csrfToken: req.csrfToken()
+		};
+		const id = sanitize(req.params.id);
+
+		let [err, result] = await utils.to(Video.findOne({ _id: id }));
+		if (err || !result) throw new Error(ERROR_MESSAGE.fetchError);
+		obj.video = JSON.parse(JSON.stringify(result));
+
+		obj.video.url = await utils.revertUrlFormat(obj.video.url);
+
+		[err, img] = await utils.to(Image.findOne({ _itemId: id }));
+		if (err || !img) throw new Error(ERROR_MESSAGE.fetchError);
+		obj.image = img;
+
+		return res.status(200).render("restricted/patchVideo", obj);
 	} catch (err) {
 		console.log("ADMIN VIDEOS ROUTE ERROR", err, req.headers, req.ipAddress);
 		req.flash("warning", err.message);

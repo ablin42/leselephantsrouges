@@ -4,7 +4,11 @@
 
 <% if (locals.videos){ %> <% Object.keys(locals.videos).forEach(function (index) { %>
 <div class="" id="<%= locals.videos[index]._id %>">
-	<h1><%= locals.videos[index].title %></h1>
+	<h1>
+		<%= locals.videos[index].title %> <% if (locals.user && locals.user.role === "admin") { %>
+		<a href="/Admin/Videos/Patch/<%= locals.videos[index]._id %>"><i class="fas fa-edit"></i></a>
+		<% } %>
+	</h1>
 	<br />
 	<p><%= locals.videos[index].description %></p>
 	<br />
@@ -23,6 +27,7 @@
 		allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 		allowfullscreen
 	></iframe>
+	<img src="<%= locals.videos[index].coverPath %>" />
 </div>
 <% }) %> <% } else { %>
 <div class="text-center bwhite">

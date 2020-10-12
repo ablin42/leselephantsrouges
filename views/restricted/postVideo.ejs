@@ -32,6 +32,10 @@
 			<input type="checkbox" name="isFiction" id="isFiction" value="<% if (locals.formData) { %><%= locals.formData.isFiction %><% } %>" />
 
 			<h2>img input cover here</h2>
+			<div class="form-group text-center">
+				<label for="img" id="imglabel" class="filebtn">Choisir des images</label>
+				<input class="inputfile" type="file" name="img" id="img" required />
+			</div>
 
 			<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>" />
 			<input type="submit" class="submit-btn" value="Ajouter la vidéo" id="submit-video" />

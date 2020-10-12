@@ -49,3 +49,37 @@ i[data-type="showpw"]:hover {
 	color: var(--interactive-color);
 	text-decoration: none;
 }
+
+.inputfile {
+	width: 0;
+	height: 0;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.filebtn {
+	display: block;
+	width: 100%;
+	padding: 15px;
+	border: none;
+	background: linear-gradient(160deg, blue, red);
+	background-size: 200%;
+	color: white;
+	outline: none;
+	cursor: pointer;
+	transition: 0.5s;
+}
+
+.imguploaded {
+	background: green !important;
+	color: black;
+}
+
+.filebtn:hover {
+	background-position: right;
+	box-shadow: 0px 0px 5px 1px #026cb963;
+	-webkit-box-shadow: 0px 0px 5px 1px #026cb963;
+	-moz-box-shadow: 0px 0px 5px 1px #026cb963;
+}

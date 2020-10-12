@@ -19,10 +19,6 @@ const videoSchema = new mongoose.Schema(
 			min: 8,
 			max: 1024
 		},
-		coverPath: {
-			type: String,
-			required: true
-		},
 		isFiction: {
 			type: Boolean,
 			default: false
