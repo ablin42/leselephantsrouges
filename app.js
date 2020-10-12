@@ -109,7 +109,7 @@ app.use(
 				"'unsafe-inline'"
 			],
 			frameSrc: ["www.youtube-nocookie.com", "www.youtube.com"],
-			imgSrc: ["'self'", "leselephantsrouges.s3.amazonaws.com"]
+			imgSrc: ["'self'", "leselephantsrouges.s3.amazonaws.com", "leselephantsrouges.s3.eu-west-1.amazonaws.com"]
 		},
 		reportOnly: false
 	})

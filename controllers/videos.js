@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const rp = require("request-promise");
 const sanitize = require("mongo-sanitize");
 const rateLimit = require("express-rate-limit");
 const MongoStore = require("rate-limit-mongo");
@@ -9,9 +8,10 @@ const upload = require("./helpers/multer");
 const { vVideo } = require("./validators/vVideo");
 const utils = require("./helpers/utils");
 const vHelpers = require("./helpers/videoHelpers");
-const { setUser, authUser, authRole, errorHandler, setVideo } = require("./helpers/middlewares");
+const { ROLE, setUser, authUser, authRole, errorHandler, setVideo } = require("./helpers/middlewares");
 const { ERROR_MESSAGE } = require("./helpers/errorMessages");
 const Video = require("../models/Video");
+const Image = require("../models/Image");
 const aws = require("aws-sdk");
 aws.config.region = process.env.AWS_REGION;
 require("dotenv").config();
@@ -52,7 +52,7 @@ router.get("/", async (req, res) => {
 	}
 });
 
-router.post("/", upload, errorHandler, vVideo, setUser, authUser, authRole("admin"), async (req, res) => {
+router.post("/", upload, errorHandler, vVideo, setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
 	try {
 		await utils.checkValidity(req);
 		const obj = {
@@ -79,8 +79,7 @@ router.post("/", upload, errorHandler, vVideo, setUser, authUser, authRole("admi
 	}
 });
 
-//patch route
-router.post("/:id", upload, errorHandler, vVideo, setVideo, setUser, authUser, authRole("admin"), async (req, res) => {
+router.post("/:id", upload, errorHandler, vVideo, setVideo, setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
 	try {
 		await utils.checkValidity(req);
 		const id = sanitize(req.params.id);
@@ -111,73 +110,30 @@ router.post("/:id", upload, errorHandler, vVideo, setVideo, setUser, authUser, a
 	}
 });
 
-//needs del route too
-//patch route
-router.post("/delete/:id", upload, errorHandler, vVideo, setVideo, setUser, authUser, authRole("admin"), async (req, res) => {
+router.post("/delete/:id", setVideo, setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
 	try {
 		await utils.checkValidity(req);
 		const id = sanitize(req.params.id);
-		const obj = {
-			title: req.body.title,
-			description: req.body.description,
-			url: await utils.parseUrl(req.body.url),
-			isFiction: req.body.isFiction,
-			authors: await utils.parseAuthors(req.body.authors)
-		};
-		let imgData = await utils.parseImgData(req.files);
 
-		let [err, result] = await utils.to(Video.updateOne({ _id: id }, { $set: obj }));
-		if (err) throw new Error(ERROR_MESSAGE.updateError);
-		if (!result) throw new Error(ERROR_MESSAGE.noResult);
-
-		err = await utils.patchImages(imgData, id, "cover");
-		if (err) throw new Error(err);
-
-		console.log(`Video edited: ${id}`);
-		return res.status(200).json({ error: false, message: "Vidéo modifiée avec succès !" });
-	} catch (err) {
-		console.log("ERROR PATCHING VIDEO:", err, req.headers, req.ipAddress);
-		return res.status(200).json({ error: true, message: err.message });
-	}
-});
-
-/*
-router.post("/delete/:id", setGallery, setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
-	try {
-		let id = sanitize(req.params.id);
-
-		let [err, gallery] = await utils.to(Gallery.deleteOne({ _id: id }));
+		let [err, video] = await utils.to(Video.deleteOne({ _id: id }));
 		if (err) throw new Error(ERROR_MESSAGE.delError);
 
-		let options = {
-			method: "GET",
-			uri: `${process.env.BASEURL}/api/image/Gallery/${id}`,
-			json: true,
-			headers: {
-				ACCESS_TOKEN: process.env.ACCESS_TOKEN
-			}
-		};
-		let response = await rp(options);
-		if (response.error === true) throw new Error(ERROR_MESSAGE.fetchImg);
+		[err, img] = await utils.to(Image.findOne({ _itemId: id }));
+		if (err || !img) throw new Error(ERROR_MESSAGE.fetchImg);
 
-		for (let i = 0; i < response.images.length; i++) {
-			let s3 = new aws.S3();
-			let params = { Bucket: process.env.S3_BUCKET, Key: response.images[i].key };
-			s3.deleteObject(params, function (err, data) {
-				if (err) throw new Error(ERROR_MESSAGE.delImg);
-			});
-			await Image.deleteOne({ _id: response.images[parseInt(i)]._id });
-		}
+		let s3 = new aws.S3();
+		let params = { Bucket: process.env.S3_BUCKET, Key: img.key };
+		s3.deleteObject(params, function (err, data) {
+			if (err) throw new Error(ERROR_MESSAGE.delImg);
+		});
+		await Image.deleteOne({ _id: img._id });
 
-		fullLog.info(`Gallery deleted: ${id}`);
-		req.flash("success", ERROR_MESSAGE.itemDeleted);
-		return res.status(200).redirect("/Galerie");
+		console.log(`Video deleted: ${id}`);
+		return res.status(200).redirect("/");
 	} catch (err) {
-		threatLog.error("DELETE GALLERY ERROR", err, req.headers, req.ipAddress);
-		req.flash("warning", err.message);
-		return res.status(400).redirect("/Galerie");
+		console.log("ERROR PATCHING VIDEO:", err, req.headers, req.ipAddress);
+		return res.status(400).redirect("/");
 	}
 });
-*/
 
 module.exports = router;

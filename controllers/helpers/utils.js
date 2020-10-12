@@ -3,6 +3,9 @@ const Image = require("../../models/Image");
 const User = require("../../models/User");
 const { validationResult } = require("express-validator");
 const mime = require("mime-types");
+const aws = require("aws-sdk");
+aws.config.region = process.env.AWS_REGION;
+require("dotenv").config();
 
 module.exports = {
 	emailExist: async function emailExist(email) {
@@ -58,6 +61,15 @@ module.exports = {
 				mimetype: mime.lookup(imgData[i].path),
 				key: imgData[i].key
 			};
+
+			[err, currImg] = await this.to(Image.findOne({ _itemId: itemId, itemType: itemType }));
+			if (err || !currImg) return ERROR_MESSAGE.fetchImg;
+
+			let s3 = new aws.S3();
+			let params = { Bucket: process.env.S3_BUCKET, Key: currImg.key };
+			s3.deleteObject(params, function (err, data) {
+				if (err) throw new Error(ERROR_MESSAGE.delImg);
+			});
 
 			[err, patchedImg] = await this.to(Image.findOneAndUpdate({ _itemId: itemId, itemType: itemType }, { $set: obj }));
 			if (err || !patchedImg) return ERROR_MESSAGE.saveError;
