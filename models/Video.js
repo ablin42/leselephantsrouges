@@ -10,14 +10,12 @@ const videoSchema = new mongoose.Schema(
 		title: {
 			type: String,
 			required: true,
-			min: 3,
 			max: 255
 		},
 		description: {
 			type: String,
 			required: true,
-			min: 8,
-			max: 1024
+			max: 2048
 		},
 		isFiction: {
 			type: Boolean,

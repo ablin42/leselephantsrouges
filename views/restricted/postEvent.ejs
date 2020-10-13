@@ -1,51 +1,52 @@
 <%- include('../partials/head'); -%>
 
-<h1>bide events + vid testing</h1>
+<div class="container">
+	<h1 class="text-center">Add Event</h1>
 
-<!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
-<div id="player"></div>
+	<form class="col-md-6 offset-md-3 text-center" id="event" method="POST" action="/api/events/">
+		<div class="row">
+			<h5>Les champs avec une (*) sont obligatoires</h5>
+			<label class="control-label">Titre*</label>
+			<input placeholder="Notre super réal" type="text" id="title" name="title" data-vstring="1;256" required />
+			<span id="i_title" class="form-info">Le <b>titre</b> doit faire entre <b>1 et 256 caractères</b></span>
 
-<script>
-	// 2. This code loads the IFrame Player API code asynchronously.
-	var tag = document.createElement("script");
+			<label class="control-label">Description*</label>
+			<textarea placeholder="La description de notre super réal" id="description" name="description" data-vstring="1;2048" rows="5" required></textarea>
+			<span id="i_description" class="form-info">La <b>description</b> doit faire entre <b>1 et 2048 caractères</b></span>
 
-	tag.src = "https://www.youtube.com/iframe_api";
-	var firstScriptTag = document.getElementsByTagName("script")[0];
-	firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+			<label class="control-label">Début de l'événement</label>
+			<input type="datetime-local" id="eventStart" name="eventStart" />
 
-	// 3. This function creates an <iframe> (and YouTube player)
-	//    after the API code downloads.
-	var player;
-	function onYouTubeIframeAPIReady() {
-		player = new YT.Player("player", {
-			height: "390",
-			width: "640",
-			videoId: "M7lc1UVf-VE",
-			events: {
-				onReady: onPlayerReady,
-				onStateChange: onPlayerStateChange
-			}
-		});
-	}
+			<label class="control-label">Fin de l'événement</label>
+			<input type="datetime-local" id="eventEnd" name="eventEnd" />
 
-	// 4. The API will call this function when the video player is ready.
-	function onPlayerReady(event) {
-		event.target.playVideo();
-	}
+			<label class="control-label">Adresse</label>
+			<input placeholder="12 rue Villedo, 75001, Paris" type="text" id="address" name="address" data-vstring="0;256" />
+			<span id="i_address" class="form-info"><b>L'addresse</b> ne peut pas faire plus de <b>256 caractères</b></span>
 
-	// 5. The API calls this function when the player's state changes.
-	//    The function indicates that when playing a video (state=1),
-	//    the player should play for six seconds and then stop.
-	var done = false;
-	function onPlayerStateChange(event) {
-		if (event.data == YT.PlayerState.PLAYING && !done) {
-			setTimeout(stopVideo, 6000);
-			done = true;
-		}
-	}
-	function stopVideo() {
-		player.stopVideo();
-	}
-</script>
+			<label class="control-label">Prix</label>
+			<input placeholder="35.50 (au centième d'euro près)" type="number" min="1" id="price" name="price" step=".01" />
+
+			<label class="control-label">Staff (séparés par un ';')</label>
+			<input placeholder="Jean Dupont; Mr propre" type="text" id="staff" name="staff" />
+
+			<label class="control-label">Lien youtube</label>
+			<input placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" type="url" id="url" name="url" data-vUrl="true" />
+			<span id="i_url" class="form-info">Le lien <b>youtube</b> n'est pas au bon <b>format</b></span>
+
+			<h2>img input cover here</h2>
+			<div class="form-group text-center">
+				<label for="img" id="imglabel" class="filebtn">Choisir des images</label>
+				<input class="inputfile" type="file" name="img" id="img" />
+			</div>
+
+			<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>" />
+			<input type="submit" class="submit-btn" value="Ajouter l'événement" id="submit-event" />
+		</div>
+	</form>
+</div>
+
+<script src="/scripts/core/validation.js" defer></script>
+<script src="/scripts/submitEvent.js" defer></script>
 
 <%- include('../partials/footer'); -%>

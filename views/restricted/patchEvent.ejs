@@ -1,0 +1,60 @@
+<%- include('../partials/head'); -%>
+
+<div class="container">
+	<h1 class="text-center">Modifier un événement</h1>
+
+	<form class="col-md-6 offset-md-3 text-center" id="eventpatch" method="POST" data-eventid="<%= locals.event._id %>" action="/api/events/<%= locals.event._id %>">
+		<div class="row">
+			<h5>Les champs avec une (*) sont obligatoires</h5>
+			<label class="control-label">Titre*</label>
+			<input placeholder="Notre super réal" type="text" id="title" name="title" data-vstring="1;256" value="<%= locals.event.title %>" required />
+			<span id="i_title" class="form-info">Le <b>titre</b> doit faire entre <b>1 et 256 caractères</b></span>
+
+			<label class="control-label">Description*</label>
+			<textarea placeholder="La description de notre super réal" id="description" name="description" data-vstring="1;2048" rows="5" required><%= locals.event.description %></textarea>
+			<span id="i_description" class="form-info">La <b>description</b> doit faire entre <b>1 et 2048 caractères</b></span>
+
+			<label class="control-label">Début de l'événement</label>
+			<input type="datetime-local" id="eventStart" name="eventStart" value="<%= locals.event.eventStart %>" />
+
+			<label class="control-label">Fin de l'événement</label>
+			<input type="datetime-local" id="eventEnd" name="eventEnd" value="<%= locals.event.eventEnd %>" />
+
+			<label class="control-label">Adresse</label>
+			<input placeholder="12 rue Villedo, 75001, Paris" type="text" id="address" name="address" data-vstring="0;256" value="<%= locals.event.address %>" />
+			<span id="i_address" class="form-info"><b>L'addresse</b> ne peut pas faire plus de <b>256 caractères</b></span>
+
+			<label class="control-label">Prix</label>
+			<input placeholder="35.50 (au centième d'euro près)" type="number" min="1" id="price" name="price" step=".01" value="<%= locals.event.price %>" />
+
+			<label class="control-label">Staff (séparés par un ';')</label>
+			<input placeholder="Jean Dupont; Mr propre" type="text" id="staff" name="staff" value="<%= locals.event.staff %>" />
+
+			<label class="control-label">Lien youtube</label>
+			<input placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" type="url" id="url" name="url" data-vUrl="true" value="<%= locals.event.url %>" />
+			<span id="i_url" class="form-info">Le lien <b>youtube</b> n'est pas au bon <b>format</b></span>
+
+			<% if (locals.image) { %>
+			<img src="<%= locals.image.path %>" />
+			<% } %>
+
+			<div class="form-group text-center">
+				<label for="img" id="imglabel" class="filebtn">Choisir une image</label>
+				<input class="inputfile" type="file" name="img" id="img" />
+			</div>
+
+			<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>" />
+			<input type="submit" class="submit-btn" value="Modifier l'événement" id="submit-eventpatch" />
+		</div>
+	</form>
+
+	<form class="mt-3" method="POST" action="/api/events/delete/<%= locals.event._id %>">
+		<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>" />
+		<input type="submit" class="delbtn" value="SUPPRIMER DEFINITIVEMENT" id="delete-event" />
+	</form>
+</div>
+
+<script src="/scripts/core/validation.js" defer></script>
+<script src="/scripts/submitEvent.js" defer></script>
+
+<%- include('../partials/footer'); -%>

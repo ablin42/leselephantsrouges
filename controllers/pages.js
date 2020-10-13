@@ -3,7 +3,7 @@ const rp = require("request-promise");
 const router = express.Router();
 const sanitize = require("mongo-sanitize");
 
-const { ROLE, setUser, notLoggedUser, authUser, authRole } = require("./helpers/middlewares");
+const { ROLE, setUser, notLoggedUser, authUser, authRole, setEvent, setVideo } = require("./helpers/middlewares");
 const utils = require("./helpers/utils");
 const Video = require("../models/Video");
 const Image = require("../models/Image");
@@ -43,7 +43,32 @@ router.get("/vidrender", setUser, async (req, res) => {
 		return res.status(200).render("vidrender", obj);
 	} catch (err) {
 		console.log("HOME ROUTE ERROR:", err, req.headers, req.ipAddress);
+		req.flash("warning", err.message);
+		return res.status(200).render("error");
+	}
+});
 
+router.get("/eventrender", setUser, async (req, res) => {
+	try {
+		let obj = {
+			active: "eventrender",
+			csrfToken: req.csrfToken(),
+			user: req.user
+		};
+
+		let options = {
+			method: "GET",
+			uri: `${process.env.BASEURL}/api/events/`,
+			json: true
+		};
+		let response = await rp(options);
+		if (response.error === false) obj.events = response.events;
+		else throw new Error(response.message);
+
+		return res.status(200).render("eventrender", obj);
+	} catch (err) {
+		console.log("HOME ROUTE ERROR:", err, req.headers, req.ipAddress);
+		req.flash("warning", err.message);
 		return res.status(200).render("error");
 	}
 });
@@ -144,7 +169,7 @@ router.get("/Admin/Videos", setUser, authUser, authRole(ROLE.ADMIN), async (req,
 	}
 });
 
-router.get("/Admin/Videos/Patch/:id", setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
+router.get("/Admin/Videos/Patch/:id", setVideo, setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
 	try {
 		let obj = {
 			active: "Admin Videos Edit",
@@ -154,11 +179,7 @@ router.get("/Admin/Videos/Patch/:id", setUser, authUser, authRole(ROLE.ADMIN), a
 			csrfToken: req.csrfToken()
 		};
 		const id = sanitize(req.params.id);
-
-		let [err, result] = await utils.to(Video.findOne({ _id: id }));
-		if (err || !result) throw new Error(ERROR_MESSAGE.fetchError);
-		obj.video = JSON.parse(JSON.stringify(result));
-
+		obj.video = JSON.parse(JSON.stringify(req.video));
 		obj.video.url = await utils.revertUrlFormat(obj.video.url);
 
 		[err, img] = await utils.to(Image.findOne({ _itemId: id }));
@@ -167,7 +188,7 @@ router.get("/Admin/Videos/Patch/:id", setUser, authUser, authRole(ROLE.ADMIN), a
 
 		return res.status(200).render("restricted/patchVideo", obj);
 	} catch (err) {
-		console.log("ADMIN VIDEOS ROUTE ERROR", err, req.headers, req.ipAddress);
+		console.log("ADMIN PATCH VIDEOS ROUTE ERROR", err, req.headers, req.ipAddress);
 		req.flash("warning", err.message);
 		return res.status(400).redirect("/Admin");
 	}
@@ -186,6 +207,34 @@ router.get("/Admin/Events", setUser, authUser, authRole(ROLE.ADMIN), async (req,
 		return res.status(200).render("restricted/postEvent", obj);
 	} catch (err) {
 		console.log("ADMIN EVENTS ROUTE ERROR", err, req.headers, req.ipAddress);
+		req.flash("warning", err.message);
+		return res.status(400).redirect("/Admin");
+	}
+});
+
+router.get("/Admin/Events/Patch/:id", setEvent, setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
+	try {
+		let obj = {
+			active: "Admin Events Edit",
+			headtitle: "Les éléphants rouges | Admin Events Edit",
+			description: "Les éléphants rouges, events section",
+			user: req.user,
+			csrfToken: req.csrfToken()
+		};
+		const id = sanitize(req.params.id);
+		obj.event = JSON.parse(JSON.stringify(req.event));
+		if (obj.event.url && obj.event.url != "") obj.event.url = await utils.revertUrlFormat(obj.event.url);
+
+		if (obj.event.eventStart) obj.event.eventStart = obj.event.eventStart.substr(0, obj.event.eventStart.length - 8);
+		if (obj.event.eventEnd) obj.event.eventEnd = obj.event.eventEnd.substr(0, obj.event.eventEnd.length - 8);
+
+		[err, img] = await utils.to(Image.findOne({ _itemId: id }));
+		if (err) throw new Error(ERROR_MESSAGE.fetchError);
+		if (img) obj.image = img;
+
+		return res.status(200).render("restricted/patchEvent", obj);
+	} catch (err) {
+		console.log("ADMIN PATCH EVENTS ROUTE ERROR", err, req.headers, req.ipAddress);
 		req.flash("warning", err.message);
 		return res.status(400).redirect("/Admin");
 	}

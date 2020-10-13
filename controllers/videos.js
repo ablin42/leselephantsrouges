@@ -131,7 +131,7 @@ router.post("/delete/:id", setVideo, setUser, authUser, authRole(ROLE.ADMIN), as
 		console.log(`Video deleted: ${id}`);
 		return res.status(200).redirect("/");
 	} catch (err) {
-		console.log("ERROR PATCHING VIDEO:", err, req.headers, req.ipAddress);
+		console.log("ERROR DELETING VIDEO:", err, req.headers, req.ipAddress);
 		return res.status(400).redirect("/");
 	}
 });

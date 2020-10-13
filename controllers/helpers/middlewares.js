@@ -5,6 +5,7 @@ const utils = require("./utils");
 const sanitize = require("mongo-sanitize");
 const User = require("../../models/User");
 const Video = require("../../models/Video");
+const Event = require("../../models/Event");
 const Image = require("../../models/Image");
 const { ERROR_MESSAGE } = require("./errorMessages");
 
@@ -85,6 +86,26 @@ async function setVideo(req, res, next) {
 	next();
 }
 
+async function setEvent(req, res, next) {
+	const id = sanitize(req.params.id);
+
+	let [err, event] = await utils.to(Event.findById(id));
+	if (err || !event) {
+		if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
+			req.flash("warning", ERROR_MESSAGE.noResult);
+			return res.status(404).redirect("/Admin");
+		}
+		return res.status(200).json({ url: "/Admin", message: ERROR_MESSAGE.noResult, err: true });
+	}
+	req.event = JSON.parse(JSON.stringify(event));
+
+	[err, img] = await utils.to(Image.findOne({ itemType: "event", _itemId: event._id }));
+	if (err) throw new Error(ERROR_MESSAGE.fetchImg);
+	if (img) req.event.mainImg = img.path;
+
+	next();
+}
+
 function errorHandler(err, req, res, next) {
 	if (res.headersSent) return next(err);
 
@@ -100,5 +121,6 @@ module.exports = {
 	authUser,
 	authRole,
 	authToken,
-	setVideo
+	setVideo,
+	setEvent
 };

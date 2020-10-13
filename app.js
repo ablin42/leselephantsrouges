@@ -140,7 +140,7 @@ app.use(flash());
 app.use("/", pagesRoute);
 app.use("/api/contact", contactRoute);
 app.use("/api/auth", authRoute);
-//app.use("/api/events", eventsRoute);
+app.use("/api/events", eventsRoute);
 app.use("/api/videos", videosRoute);
 
 app.post("/report-violation", (req, res) => {
