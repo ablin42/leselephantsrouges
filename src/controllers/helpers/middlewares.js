@@ -20,7 +20,7 @@ async function setUser(req, res, next) {
 	if (userId) {
 		let [err, user] = await utils.to(User.findById(userId));
 		if (err || user == null) {
-			req.flash("warning", ERROR_MESSAGE.userNotFound);
+			//req.flash("warning", ERROR_MESSAGE.userNotFound);
 			return res.status(401).redirect("/Auth");
 		}
 		user.password = undefined;
@@ -32,7 +32,7 @@ async function setUser(req, res, next) {
 
 function authUser(req, res, next) {
 	if (!req.user) {
-		req.flash("warning", ERROR_MESSAGE.logInNeeded);
+		//req.flash("warning", ERROR_MESSAGE.logInNeeded);
 		return res.status(403).redirect("/Auth");
 	}
 
@@ -41,7 +41,7 @@ function authUser(req, res, next) {
 
 function notLoggedUser(req, res, next) {
 	if (req.user) {
-		req.flash("warning", ERROR_MESSAGE.alreadyLoggedIn);
+		//req.flash("warning", ERROR_MESSAGE.alreadyLoggedIn);
 		return res.status(403).redirect("/Admin");
 	}
 
@@ -51,7 +51,7 @@ function notLoggedUser(req, res, next) {
 function authRole(role) {
 	return (req, res, next) => {
 		if (req.user.role !== role) {
-			req.flash("warning", ERROR_MESSAGE.unauthorized);
+			//req.flash("warning", ERROR_MESSAGE.unauthorized);
 			return res.status(401).redirect("back");
 		} else next();
 	};
@@ -71,7 +71,7 @@ async function setVideo(req, res, next) {
 	let [err, video] = await utils.to(Video.findById(id));
 	if (err || !video) {
 		if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
-			req.flash("warning", ERROR_MESSAGE.noResult);
+			//req.flash("warning", ERROR_MESSAGE.noResult);
 			return res.status(404).redirect("/Admin");
 		}
 		return res.status(200).json({ url: "/Admin", message: ERROR_MESSAGE.noResult, err: true });
@@ -92,7 +92,7 @@ async function setEvent(req, res, next) {
 	let [err, event] = await utils.to(Event.findById(id));
 	if (err || !event) {
 		if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
-			req.flash("warning", ERROR_MESSAGE.noResult);
+			//req.flash("warning", ERROR_MESSAGE.noResult);
 			return res.status(404).redirect("/Admin");
 		}
 		return res.status(200).json({ url: "/Admin", message: ERROR_MESSAGE.noResult, err: true });
@@ -109,7 +109,7 @@ async function setEvent(req, res, next) {
 function errorHandler(err, req, res, next) {
 	if (res.headersSent) return next(err);
 
-	console.log(err.message, req.ipAddress, "an error occured with the file upload");
+	console.log(err.message, "an error occured with the file upload");
 	return res.status(500).json({ url: "/", message: err.message, err: true });
 }
 

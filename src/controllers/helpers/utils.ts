@@ -7,7 +7,7 @@ const aws = require("aws-sdk");
 aws.config.region = process.env.AWS_REGION;
 require("dotenv").config();
 
-module.exports = {
+let utils =  {
 	emailExist: async function emailExist(email) {
 		if (await User.findOne({ email: email })) return true;
 
@@ -120,3 +120,6 @@ module.exports = {
 		return parsedUrl;
 	}
 };
+
+
+export default utils;

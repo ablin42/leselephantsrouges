@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
 
 		return res.status(200).json({ error: false, events: events });
 	} catch (err) {
-		console.log("FETCHING EVENTS ERROR:", err, req.headers, req.ipAddress);
+		console.log("FETCHING EVENTS ERROR:", err, req.headers);
 		return res.status(200).json({ error: true, message: err.message });
 	}
 });
@@ -64,7 +64,7 @@ router.post("/", upload, errorHandler, vEvent, setUser, authUser, authRole(ROLE.
 		console.log(`Event added: ${newEvent._id}`);
 		return res.status(200).json({ error: false, message: "Événement ajouté avec succès !" });
 	} catch (err) {
-		console.log("ERROR POSTING EVENT:", err, req.headers, req.ipAddress);
+		console.log("ERROR POSTING EVENT:", err, req.headers);
 		return res.status(200).json({ error: true, message: err.message });
 	}
 });
@@ -97,7 +97,7 @@ router.post("/:id", upload, errorHandler, vEvent, setEvent, setUser, authUser, a
 		console.log(`Event edited: ${id}`);
 		return res.status(200).json({ error: false, message: "Événement modifié avec succès !" });
 	} catch (err) {
-		console.log("ERROR PATCHING EVENT:", err, req.headers, req.ipAddress);
+		console.log("ERROR PATCHING EVENT:", err, req.headers);
 		return res.status(200).json({ error: true, message: err.message });
 	}
 });
@@ -123,9 +123,9 @@ router.post("/delete/:id", setEvent, setUser, authUser, authRole(ROLE.ADMIN), as
 		console.log(`Event deleted: ${id}`);
 		return res.status(200).redirect("/");
 	} catch (err) {
-		console.log("ERROR DELETING EVENT:", err, req.headers, req.ipAddress);
+		console.log("ERROR DELETING EVENT:", err, req.headers);
 		return res.status(400).redirect("/");
 	}
 });
 
-module.exports = router;
+export default router;

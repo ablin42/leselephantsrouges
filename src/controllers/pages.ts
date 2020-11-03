@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
 
 		return res.status(200).render("index", obj);
 	} catch (err) {
-		console.log("HOME ROUTE ERROR:", err, req.headers, req.ipAddress);
+		console.log("HOME ROUTE ERROR:", err, req.headers);
 
 		return res.status(200).render("error");
 	}
@@ -42,8 +42,8 @@ router.get("/vidrender", setUser, async (req, res) => {
 
 		return res.status(200).render("vidrender", obj);
 	} catch (err) {
-		console.log("HOME ROUTE ERROR:", err, req.headers, req.ipAddress);
-		req.flash("warning", err.message);
+		console.log("HOME ROUTE ERROR:", err, req.headers);
+		//req.flash("warning", err.message);
 		return res.status(200).render("error");
 	}
 });
@@ -67,8 +67,8 @@ router.get("/eventrender", setUser, async (req, res) => {
 
 		return res.status(200).render("eventrender", obj);
 	} catch (err) {
-		console.log("HOME ROUTE ERROR:", err, req.headers, req.ipAddress);
-		req.flash("warning", err.message);
+		console.log("HOME ROUTE ERROR:", err, req.headers);
+		//req.flash("warning", err.message);
 		return res.status(200).render("error");
 	}
 });
@@ -88,8 +88,8 @@ router.get("/Auth", setUser, notLoggedUser, async (req, res) => {
 
 		return res.status(200).render("Auth", obj);
 	} catch (err) {
-		console.log("AUTH ROUTE ERROR", err, req.headers, req.ipAddress);
-		req.flash("warning", ERROR_MESSAGE.serverError);
+		console.log("AUTH ROUTE ERROR", err, req.headers);
+		//req.flash("warning", ERROR_MESSAGE.serverError);
 		return res.status(400).redirect("/");
 	}
 });
@@ -109,8 +109,8 @@ router.get("/Resetpw/:tokenId/:token", setUser, notLoggedUser, async (req, res) 
 
 		return res.status(200).render("Resetpw", obj);
 	} catch (err) {
-		console.log("RESETPW ROUTE ERROR", err, req.headers, req.ipAddress);
-		req.flash("warning", err.message);
+		console.log("RESETPW ROUTE ERROR", err, req.headers);
+		//req.flash("warning", err.message);
 		return res.status(200).redirect("/Auth");
 	}
 });
@@ -127,8 +127,8 @@ router.get("/Admin", setUser, authUser, authRole(ROLE.ADMIN), async (req, res) =
 
 		return res.status(200).render("restricted/Admin", obj);
 	} catch (err) {
-		console.log("ADMIN ROUTE ERROR", err, req.headers, req.ipAddress);
-		req.flash("warning", err.message);
+		console.log("ADMIN ROUTE ERROR", err, req.headers);
+		//req.flash("warning", err.message);
 		return res.status(400).redirect("/Auth");
 	}
 });
@@ -145,8 +145,8 @@ router.get("/Admin/Settings", setUser, authUser, authRole(ROLE.ADMIN), async (re
 
 		return res.status(200).render("restricted/settings", obj);
 	} catch (err) {
-		console.log("ADMIN ROUTE ERROR", err, req.headers, req.ipAddress);
-		req.flash("warning", err.message);
+		console.log("ADMIN ROUTE ERROR", err, req.headers);
+		//req.flash("warning", err.message);
 		return res.status(400).redirect("/Admin");
 	}
 });
@@ -163,8 +163,8 @@ router.get("/Admin/Videos", setUser, authUser, authRole(ROLE.ADMIN), async (req,
 
 		return res.status(200).render("restricted/postVideo", obj);
 	} catch (err) {
-		console.log("ADMIN VIDEOS ROUTE ERROR", err, req.headers, req.ipAddress);
-		req.flash("warning", err.message);
+		console.log("ADMIN VIDEOS ROUTE ERROR", err, req.headers);
+		//req.flash("warning", err.message);
 		return res.status(400).redirect("/Admin");
 	}
 });
@@ -188,8 +188,8 @@ router.get("/Admin/Videos/Patch/:id", setVideo, setUser, authUser, authRole(ROLE
 
 		return res.status(200).render("restricted/patchVideo", obj);
 	} catch (err) {
-		console.log("ADMIN PATCH VIDEOS ROUTE ERROR", err, req.headers, req.ipAddress);
-		req.flash("warning", err.message);
+		console.log("ADMIN PATCH VIDEOS ROUTE ERROR", err, req.headers);
+		//req.flash("warning", err.message);
 		return res.status(400).redirect("/Admin");
 	}
 });
@@ -206,8 +206,8 @@ router.get("/Admin/Events", setUser, authUser, authRole(ROLE.ADMIN), async (req,
 
 		return res.status(200).render("restricted/postEvent", obj);
 	} catch (err) {
-		console.log("ADMIN EVENTS ROUTE ERROR", err, req.headers, req.ipAddress);
-		req.flash("warning", err.message);
+		console.log("ADMIN EVENTS ROUTE ERROR", err, req.headers);
+		//req.flash("warning", err.message);
 		return res.status(400).redirect("/Admin");
 	}
 });
@@ -234,10 +234,10 @@ router.get("/Admin/Events/Patch/:id", setEvent, setUser, authUser, authRole(ROLE
 
 		return res.status(200).render("restricted/patchEvent", obj);
 	} catch (err) {
-		console.log("ADMIN PATCH EVENTS ROUTE ERROR", err, req.headers, req.ipAddress);
-		req.flash("warning", err.message);
+		console.log("ADMIN PATCH EVENTS ROUTE ERROR", err, req.headers);
+		//req.flash("warning", err.message);
 		return res.status(400).redirect("/Admin");
 	}
 });
 
-module.exports = router;
+export default router;

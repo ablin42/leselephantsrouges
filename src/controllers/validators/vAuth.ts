@@ -1,6 +1,7 @@
-const { body, sanitizeParam } = require("express-validator");
-const utils = require("../helpers/utils");
-const { ERROR_MESSAGE } = require("../helpers/errorMessages");
+const { body } = require("express-validator");
+import express from "express";
+import utils from "../helpers/utils";
+import ERROR_MESSAGE from "../helpers/errorMessages";
 
 module.exports.vEmail = [
 	body("email")
@@ -11,7 +12,7 @@ module.exports.vEmail = [
 		.normalizeEmail()
 		.isLength({ min: 3, max: 256 })
 		.withMessage(ERROR_MESSAGE.emailLength)
-		.custom(value => {
+		.custom(async (value: string) => {
 			return utils.emailExist(value).then(email => {
 				if (email) return Promise.reject(ERROR_MESSAGE.emailTaken);
 			});
@@ -24,7 +25,7 @@ module.exports.vPassword = [
 		.withMessage(ERROR_MESSAGE.pwLength)
 		.matches(/^(((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(.{8,})/)
 		.withMessage(ERROR_MESSAGE.pwAlpha),
-	body("password2").custom((value, { req }) => {
+	body("password2").custom(async (value: string, req: express.Request ) => { //{ req }
 		if (value !== req.body.password) throw new Error(ERROR_MESSAGE.pwDontMatch);
 		return true;
 	})
@@ -39,7 +40,7 @@ module.exports.vLostPw = [
 		.normalizeEmail()
 		.isLength({ min: 3, max: 256 })
 		.withMessage(ERROR_MESSAGE.emailLength)
-		.custom(value => {
+		.custom(async (value: string) => {
 			return utils.emailExist(value).then(email => {
 				if (!email) return Promise.reject(ERROR_MESSAGE.lostpwEmail);
 			});
@@ -55,7 +56,7 @@ module.exports.vRegister = [
 		.normalizeEmail()
 		.isLength({ min: 3, max: 256 })
 		.withMessage(ERROR_MESSAGE.emailLength)
-		.custom(value => {
+		.custom(async (value: string) => {
 			return utils.emailExist(value).then(email => {
 				if (email) return Promise.reject(ERROR_MESSAGE.emailTaken);
 			});
@@ -65,7 +66,7 @@ module.exports.vRegister = [
 		.withMessage(ERROR_MESSAGE.pwLength)
 		.matches(/^(((?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(.{8,})/)
 		.withMessage(ERROR_MESSAGE.pwAlpha),
-	body("password2").custom((value, { req }) => {
+	body("password2").custom((value: string, req: express.Request ) => { //{ req }
 		if (value !== req.body.password) throw new Error(ERROR_MESSAGE.pwDontMatch);
 		return true;
 	})
@@ -78,7 +79,7 @@ module.exports.vLogin = [
 		.withMessage(ERROR_MESSAGE.emailInvalid)
 		.bail()
 		.normalizeEmail()
-		.custom(value => {
+		.custom(async (value: string) => {
 			return utils.emailExist(value).then(email => {
 				if (!email) return Promise.reject(ERROR_MESSAGE.invalidCredentials);
 			});
@@ -93,7 +94,7 @@ module.exports.vResend = [
 		.withMessage(ERROR_MESSAGE.emailInvalid)
 		.bail()
 		.normalizeEmail()
-		.custom(value => {
+		.custom(async (value: string) => {
 			return utils.emailExist(value).then(email => {
 				if (!email) return Promise.reject(ERROR_MESSAGE.invalidCredentials);
 			});

@@ -47,7 +47,7 @@ router.get("/", async (req, res) => {
 
 		return res.status(200).json({ error: false, videos: videos });
 	} catch (err) {
-		console.log("FETCHING VIDEOS ERROR:", err, req.headers, req.ipAddress);
+		console.log("FETCHING VIDEOS ERROR:", err, req.headers);
 		return res.status(200).json({ error: true, message: err.message });
 	}
 });
@@ -74,7 +74,7 @@ router.post("/", upload, errorHandler, vVideo, setUser, authUser, authRole(ROLE.
 		console.log(`Video added: ${newVideo._id}`);
 		return res.status(200).json({ error: false, message: "Vidéo ajoutée avec succès !" });
 	} catch (err) {
-		console.log("ERROR POSTING VIDEO:", err, req.headers, req.ipAddress);
+		console.log("ERROR POSTING VIDEO:", err, req.headers);
 		return res.status(200).json({ error: true, message: err.message });
 	}
 });
@@ -105,7 +105,7 @@ router.post("/:id", upload, errorHandler, vVideo, setVideo, setUser, authUser, a
 		console.log(`Video edited: ${id}`);
 		return res.status(200).json({ error: false, message: "Vidéo modifiée avec succès !" });
 	} catch (err) {
-		console.log("ERROR PATCHING VIDEO:", err, req.headers, req.ipAddress);
+		console.log("ERROR PATCHING VIDEO:", err, req.headers);
 		return res.status(200).json({ error: true, message: err.message });
 	}
 });
@@ -131,9 +131,9 @@ router.post("/delete/:id", setVideo, setUser, authUser, authRole(ROLE.ADMIN), as
 		console.log(`Video deleted: ${id}`);
 		return res.status(200).redirect("/");
 	} catch (err) {
-		console.log("ERROR DELETING VIDEO:", err, req.headers, req.ipAddress);
+		console.log("ERROR DELETING VIDEO:", err, req.headers);
 		return res.status(400).redirect("/");
 	}
 });
 
-module.exports = router;
+export default router;

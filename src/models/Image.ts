@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const ImageSchema = mongoose.Schema(
+const ImageSchema = new mongoose.Schema(
 	{
 		_itemId: {
 			type: String,
@@ -30,4 +30,4 @@ const ImageSchema = mongoose.Schema(
 	{ timestamps: true }
 );
 
-module.exports = mongoose.model("Image", ImageSchema);
+export default mongoose.model("Image", ImageSchema);

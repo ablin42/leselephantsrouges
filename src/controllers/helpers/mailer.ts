@@ -1,7 +1,7 @@
-const nodemailer = require("nodemailer");
+import nodemailer from "nodemailer";
 require("dotenv/config");
 
-module.exports = async function sendValidationMail(email, subject, text, url = `${process.env.BASEURL}`) {
+export default async function mailer(email: string, subject: string, text: string, url: string = `${process.env.BASEURL}`) {
 	let transporter = nodemailer.createTransport({
 		service: "gmail",
 		auth: {
@@ -14,7 +14,8 @@ module.exports = async function sendValidationMail(email, subject, text, url = `
 		from: process.env.SERVER_EMAIL,
 		to: email,
 		subject: subject,
-		text: text
+		text: text,
+		html: ""
 	};
 
 	console.log(url);
@@ -62,7 +63,7 @@ module.exports = async function sendValidationMail(email, subject, text, url = `
 				</div>
 		`;
 	}
-	transporter.sendMail(mailOptions, err => {
+	transporter.sendMail(mailOptions, (err: object) => {
 		if (err) {
 			console.log("MAILING ERROR:", err, mailOptions.to, mailOptions.subject);
 			return true;
@@ -70,4 +71,4 @@ module.exports = async function sendValidationMail(email, subject, text, url = `
 	});
 
 	return false;
-};
+}

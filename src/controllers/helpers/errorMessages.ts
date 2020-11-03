@@ -99,6 +99,5 @@ const ERROR_MESSAGE = {
 	lastname: "Last Name must contain between 8 and 256 characters"
 };
 
-module.exports = {
-	ERROR_MESSAGE
-};
+export default ERROR_MESSAGE
+

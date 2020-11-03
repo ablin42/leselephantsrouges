@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const tokenSchema = new mongoose.Schema(
+const passwordSchema = new mongoose.Schema(
 	{
 		_userId: {
 			type: String,
@@ -21,4 +21,4 @@ const tokenSchema = new mongoose.Schema(
 	{ timestamps: true }
 );
 
-module.exports = mongoose.model("VerificationToken", tokenSchema);
+export default mongoose.model("PasswordToken", passwordSchema);

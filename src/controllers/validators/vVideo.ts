@@ -1,8 +1,8 @@
-const { body, sanitizeParam } = require("express-validator");
-const { ERROR_MESSAGE } = require("../helpers/errorMessages");
+const { body } = require("express-validator");
+import ERROR_MESSAGE from "../helpers/errorMessages";
 
 module.exports.vVideo = [
-	body("url").custom(value => {
+	body("url").custom((value: string) => {
 		let result = value.match(/youtube.com\/.*/);
 
 		if (!result) return Promise.reject("Le lien youtube n'est pas au bon format");

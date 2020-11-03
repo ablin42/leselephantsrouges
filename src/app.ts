@@ -1,28 +1,35 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const helmet = require("helmet");
-const session = require("express-session");
-const flash = require("express-flash");
+import express from "express";
+import * as bodyParser from "body-parser";
+import mongoose from "mongoose";
+import cors from "cors";
+import helmet from "helmet";
+import session from "express-session";
+//import flash from "flash";
+import csurf from "csurf";
+
+import * as expressSanitizer from "express-sanitizer";
+import sanitize from "mongo-sanitize";
+import * as aws from "aws-sdk";
+import path from "path";
+
 const MongoStore = require("connect-mongo")(session);
-const csrf = require("csurf");
-const expressSanitizer = require("express-sanitizer");
-const sanitize = require("mongo-sanitize");
-const path = require("path");
-const aws = require("aws-sdk");
 require("dotenv").config();
 aws.config.region = process.env.AWS_REGION;
 
-const pagesRoute = require("./controllers/pages");
-const contactRoute = require("./controllers/contact");
-const authRoute = require("./controllers/auth");
-const videosRoute = require("./controllers/videos");
-const eventsRoute = require("./controllers/events");
+import pagesRoute from "./controllers/pages";
+import contactRoute from "./controllers/contact";
+import authRoute from "./controllers/auth";
+import videosRoute from "./controllers/videos";
+import eventsRoute from "./controllers/events";
+
+const CONNECTION_STRING = process.env.DB_CONNECTION;
+const SESSION_SECRET = "" + process.env.SESSION_SECRET;
+
 
 //Connect to DB
+if (CONNECTION_STRING) {
 mongoose.connect(
-	process.env.DB_CONNECTION,
+	CONNECTION_STRING,
 	{
 		useNewUrlParser: true,
 		useCreateIndex: true,
@@ -33,7 +40,8 @@ mongoose.connect(
 		if (err) throw err;
 		console.log("Connected to database");
 	}
-);
+);}
+
 
 // Express
 const app = express();
@@ -51,7 +59,7 @@ app.use(
 			ttl: 365 * 24 * 60 * 60
 		}),
 		name: "leselephantsrouges",
-		secret: process.env.SESSION_SECRET,
+		secret: SESSION_SECRET,
 		resave: true,
 		//proxy: true,
 		saveUninitialized: true,
@@ -73,11 +81,18 @@ app.use(
 		limit: 25000000
 	})
 );
+
+interface ResponseError extends Error {
+  status?: number;
+}
+
 // BP Error handler
-app.use(function (err, req, res, next) {
+app.use(function (err: ResponseError, req: express.Request, res: express.Response, next: express.NextFunction) {
 	res.status(err.status || 500);
 	if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
-		req.flash("warning", err.message);
+		////req.flash("warning", err.message);
+		if (!req.headers.referer)
+			return res.status(200).json({ error: true, message: "An error occured with the headers" });
 		return res.status(403).redirect(req.headers.referer);
 	}
 	return res.status(200).json({ error: true, message: err.message });
@@ -115,7 +130,8 @@ app.use(
 	})
 );
 
-app.use(csrf({ cookie: false }));
+app.use(csurf({ cookie: false }));
+
 
 // Keep session
 app.use((req, res, next) => {
@@ -134,7 +150,7 @@ app.use((req, res, next) => {
 app.use(expressSanitizer());
 
 app.use(cors());
-app.use(flash());
+//app.use(flash());
 
 // Routes
 app.use("/", pagesRoute);

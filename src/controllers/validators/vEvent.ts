@@ -1,8 +1,8 @@
-const { body, sanitizeParam } = require("express-validator");
-const { ERROR_MESSAGE } = require("../helpers/errorMessages");
+const { body } = require("express-validator");
+import ERROR_MESSAGE from "../helpers/errorMessages";
 
 module.exports.vEvent = [
-	body("url").custom(value => {
+	body("url").custom((value: string) => {
 		if (!value || value == "") return true;
 		let result = value.match(/youtube.com\/.*/);
 
