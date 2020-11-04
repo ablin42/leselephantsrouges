@@ -1,14 +1,14 @@
-const express = require("express");
-const rp = require("request-promise");
+import express from "express";
+import rp from "request-promise";
 const router = express.Router();
-const sanitize = require("mongo-sanitize");
+import sanitize from "mongo-sanitize";
 
 const { ROLE, setUser, notLoggedUser, authUser, authRole, setEvent, setVideo } = require("./helpers/middlewares");
-const utils = require("./helpers/utils");
-const Video = require("../models/Video");
-const Image = require("../models/Image");
-const { ERROR_MESSAGE } = require("./helpers/errorMessages");
-const PwToken = require("../models/PasswordToken");
+import utils from "./helpers/utils";
+import Video from "../models/Video";
+import Image from "../models/Image";
+import ERROR_MESSAGE from "./helpers/errorMessages";
+import PwToken from "../models/PasswordToken";
 require("dotenv").config();
 
 router.get("/", async (req, res) => {
@@ -28,7 +28,8 @@ router.get("/vidrender", setUser, async (req, res) => {
 		let obj = {
 			active: "vidrenders",
 			csrfToken: req.csrfToken(),
-			user: req.user
+			user: req.user,
+			videos: []
 		};
 
 		let options = {
@@ -53,7 +54,8 @@ router.get("/eventrender", setUser, async (req, res) => {
 		let obj = {
 			active: "eventrender",
 			csrfToken: req.csrfToken(),
-			user: req.user
+			user: req.user,
+			events: []
 		};
 
 		let options = {
@@ -79,7 +81,8 @@ router.get("/Auth", setUser, notLoggedUser, async (req, res) => {
 			active: "Account",
 			headtitle: "Les éléphants rouges | Auth",
 			description: "Les éléphants rouges, auth section",
-			csrfToken: req.csrfToken()
+			csrfToken: req.csrfToken(),
+			formData: {}
 		};
 		if (req.session.formData) {
 			obj.formData = req.session.formData;
@@ -176,13 +179,15 @@ router.get("/Admin/Videos/Patch/:id", setVideo, setUser, authUser, authRole(ROLE
 			headtitle: "Les éléphants rouges | Admin Videos Edit",
 			description: "Les éléphants rouges, videos section",
 			user: req.user,
-			csrfToken: req.csrfToken()
+			csrfToken: req.csrfToken(),
+			video: {},
+			image: ""
 		};
 		const id = sanitize(req.params.id);
 		obj.video = JSON.parse(JSON.stringify(req.video));
 		obj.video.url = await utils.revertUrlFormat(obj.video.url);
 
-		[err, img] = await utils.to(Image.findOne({ _itemId: id }));
+		let [err, img] = await utils.to(Image.findOne({ _itemId: id }));
 		if (err || !img) throw new Error(ERROR_MESSAGE.fetchError);
 		obj.image = img;
 
@@ -219,7 +224,8 @@ router.get("/Admin/Events/Patch/:id", setEvent, setUser, authUser, authRole(ROLE
 			headtitle: "Les éléphants rouges | Admin Events Edit",
 			description: "Les éléphants rouges, events section",
 			user: req.user,
-			csrfToken: req.csrfToken()
+			csrfToken: req.csrfToken(),
+			event: {}
 		};
 		const id = sanitize(req.params.id);
 		obj.event = JSON.parse(JSON.stringify(req.event));
@@ -228,7 +234,7 @@ router.get("/Admin/Events/Patch/:id", setEvent, setUser, authUser, authRole(ROLE
 		if (obj.event.eventStart) obj.event.eventStart = obj.event.eventStart.substr(0, obj.event.eventStart.length - 8);
 		if (obj.event.eventEnd) obj.event.eventEnd = obj.event.eventEnd.substr(0, obj.event.eventEnd.length - 8);
 
-		[err, img] = await utils.to(Image.findOne({ _itemId: id }));
+		let [err, img] = await utils.to(Image.findOne({ _itemId: id }));
 		if (err) throw new Error(ERROR_MESSAGE.fetchError);
 		if (img) obj.image = img;
 

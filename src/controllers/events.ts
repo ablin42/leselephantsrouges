@@ -1,17 +1,19 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const sanitize = require("mongo-sanitize");
+import sanitize from "mongo-sanitize";
 
-const upload = require("./helpers/multer");
+import upload from "./helpers/multer";
 const { vEvent } = require("./validators/vEvent");
-const utils = require("./helpers/utils");
-const eHelpers = require("./helpers/eventHelpers");
+import utils from "./helpers/utils";
+import eHelpers from "./helpers/eventHelpers";
 const { ROLE, setUser, authUser, authRole, errorHandler, setEvent } = require("./helpers/middlewares");
-const { ERROR_MESSAGE } = require("./helpers/errorMessages");
-const Event = require("../models/Event");
-const Image = require("../models/Image");
-const aws = require("aws-sdk");
+import ERROR_MESSAGE from "./helpers/errorMessages";
+import Event from "../models/Event";
+import Image from "../models/Image";
+
+import aws from "aws-sdk";
 aws.config.region = process.env.AWS_REGION;
+const BUCKET = "" + process.env.S3_BUCKET;
 require("dotenv").config();
 
 router.get("/", async (req, res) => {
@@ -47,8 +49,11 @@ router.post("/", upload, errorHandler, vEvent, setUser, authUser, authRole(ROLE.
 			eventEnd: req.body.eventEnd,
 			address: req.body.address,
 			price: req.body.price,
-			staff: await utils.parseAuthors(req.body.staff)
+			staff: await utils.parseAuthors(req.body.staff),
+			url: ""
 		};
+		let imgData;
+
 		if (req.body.url) obj.url = await utils.parseUrl(req.body.url);
 		if (req.files.length > 0) imgData = await utils.parseImgData(req.files);
 
@@ -80,8 +85,11 @@ router.post("/:id", upload, errorHandler, vEvent, setEvent, setUser, authUser, a
 			eventEnd: req.body.eventEnd,
 			address: req.body.address,
 			price: req.body.price,
-			staff: await utils.parseAuthors(req.body.staff)
+			staff: await utils.parseAuthors(req.body.staff),
+			url: ""
 		};
+		let imgData;
+
 		if (req.body.url) obj.url = await utils.parseUrl(req.body.url);
 		if (req.files.length > 0) imgData = await utils.parseImgData(req.files);
 
@@ -106,15 +114,16 @@ router.post("/delete/:id", setEvent, setUser, authUser, authRole(ROLE.ADMIN), as
 	try {
 		await utils.checkValidity(req);
 		const id = sanitize(req.params.id);
+		let err, event, img;
 
-		let [err, event] = await utils.to(Event.deleteOne({ _id: id }));
+		[err, event] = await utils.to(Event.deleteOne({ _id: id }));
 		if (err) throw new Error(ERROR_MESSAGE.delError);
 
 		[err, img] = await utils.to(Image.findOne({ _itemId: id }));
 		if (err || !img) throw new Error(ERROR_MESSAGE.fetchImg);
 
 		let s3 = new aws.S3();
-		let params = { Bucket: process.env.S3_BUCKET, Key: img.key };
+		let params = { Bucket: BUCKET, Key: img.key };
 		s3.deleteObject(params, function (err, data) {
 			if (err) throw new Error(ERROR_MESSAGE.delImg);
 		});

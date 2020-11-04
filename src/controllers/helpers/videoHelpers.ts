@@ -2,9 +2,27 @@ import ERROR_MESSAGE from "./errorMessages";
 import utils from "./utils";
 import Image from "../../models/Image";
 
+interface Video {
+	_id: string;
+	url: string;
+	title: string;
+	description: string;
+	authors: string; //maybe array
+	shortdescription: string;
+	shorttitle: string;
+	eventStart: string;
+	eventEnd: string;
+	price: string;
+	date: Date;
+	address: string;
+	createdAt: Date;
+	updatedAt: Date;
+	__v: number;
+}
 
-module.exports = {
-	fetchMainImg: async function (videos) { // need video event
+export default {
+	fetchMainImg: async function (videos: Array<Video>) {
+		// need video event
 		let arr = [];
 		for (let i = 0; i < videos.length; i++) {
 			let obj = {

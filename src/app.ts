@@ -25,23 +25,22 @@ import eventsRoute from "./controllers/events";
 const CONNECTION_STRING = process.env.DB_CONNECTION;
 const SESSION_SECRET = "" + process.env.SESSION_SECRET;
 
-
 //Connect to DB
 if (CONNECTION_STRING) {
-mongoose.connect(
-	CONNECTION_STRING,
-	{
-		useNewUrlParser: true,
-		useCreateIndex: true,
-		useFindAndModify: false,
-		useUnifiedTopology: true
-	},
-	err => {
-		if (err) throw err;
-		console.log("Connected to database");
-	}
-);}
-
+	mongoose.connect(
+		CONNECTION_STRING,
+		{
+			useNewUrlParser: true,
+			useCreateIndex: true,
+			useFindAndModify: false,
+			useUnifiedTopology: true
+		},
+		err => {
+			if (err) throw err;
+			console.log("Connected to database");
+		}
+	);
+}
 
 // Express
 const app = express();
@@ -83,7 +82,7 @@ app.use(
 );
 
 interface ResponseError extends Error {
-  status?: number;
+	status?: number;
 }
 
 // BP Error handler
@@ -91,8 +90,7 @@ app.use(function (err: ResponseError, req: express.Request, res: express.Respons
 	res.status(err.status || 500);
 	if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
 		////req.flash("warning", err.message);
-		if (!req.headers.referer)
-			return res.status(200).json({ error: true, message: "An error occured with the headers" });
+		if (!req.headers.referer) return res.status(200).json({ error: true, message: "An error occured with the headers" });
 		return res.status(403).redirect(req.headers.referer);
 	}
 	return res.status(200).json({ error: true, message: err.message });
@@ -131,7 +129,6 @@ app.use(
 );
 
 app.use(csurf({ cookie: false }));
-
 
 // Keep session
 app.use((req, res, next) => {

@@ -1,20 +1,21 @@
-const rp = require("request-promise");
+import sanitize from "mongo-sanitize";
+import express from "express";
 require("dotenv").config();
 
-const utils = require("./utils");
-const sanitize = require("mongo-sanitize");
-const User = require("../../models/User");
-const Video = require("../../models/Video");
-const Event = require("../../models/Event");
-const Image = require("../../models/Image");
-const { ERROR_MESSAGE } = require("./errorMessages");
+import utils from "./utils";
+import User from "../../models/User";
+import Video from "../../models/Video";
+import Event from "../../models/Event";
+import Image from "../../models/Image";
+import ERROR_MESSAGE from "./errorMessages";
+import { ResponseError } from "aws-sdk/clients/ec2";
 
 const ROLE = {
 	ADMIN: "admin",
 	BASIC: "basic"
 };
 
-async function setUser(req, res, next) {
+async function setUser(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const userId = req.session._id;
 
 	if (userId) {
@@ -30,7 +31,7 @@ async function setUser(req, res, next) {
 	next();
 }
 
-function authUser(req, res, next) {
+function authUser(req: express.Request, res: express.Response, next: express.NextFunction) {
 	if (!req.user) {
 		//req.flash("warning", ERROR_MESSAGE.logInNeeded);
 		return res.status(403).redirect("/Auth");
@@ -39,7 +40,7 @@ function authUser(req, res, next) {
 	next();
 }
 
-function notLoggedUser(req, res, next) {
+function notLoggedUser(req: express.Request, res: express.Response, next: express.NextFunction) {
 	if (req.user) {
 		//req.flash("warning", ERROR_MESSAGE.alreadyLoggedIn);
 		return res.status(403).redirect("/Admin");
@@ -48,8 +49,8 @@ function notLoggedUser(req, res, next) {
 	next();
 }
 
-function authRole(role) {
-	return (req, res, next) => {
+function authRole(role: string) {
+	return (req: express.Request, res: express.Response, next: express.NextFunction) => {
 		if (req.user.role !== role) {
 			//req.flash("warning", ERROR_MESSAGE.unauthorized);
 			return res.status(401).redirect("back");
@@ -57,7 +58,7 @@ function authRole(role) {
 	};
 }
 
-function authToken(req, res, next) {
+function authToken(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const token = req.headers["access_token"];
 	if (!token || token !== process.env.ACCESS_TOKEN)
 		return res.status(200).json({ error: true, message: ERROR_MESSAGE.unauthorized });
@@ -65,10 +66,11 @@ function authToken(req, res, next) {
 	next();
 }
 
-async function setVideo(req, res, next) {
+async function setVideo(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const id = sanitize(req.params.id);
+	let err, video, img;
 
-	let [err, video] = await utils.to(Video.findById(id));
+	[err, video] = await utils.to(Video.findById(id));
 	if (err || !video) {
 		if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
 			//req.flash("warning", ERROR_MESSAGE.noResult);
@@ -86,10 +88,11 @@ async function setVideo(req, res, next) {
 	next();
 }
 
-async function setEvent(req, res, next) {
+async function setEvent(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const id = sanitize(req.params.id);
+	let err, event, img;
 
-	let [err, event] = await utils.to(Event.findById(id));
+	[err, event] = await utils.to(Event.findById(id));
 	if (err || !event) {
 		if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
 			//req.flash("warning", ERROR_MESSAGE.noResult);
@@ -106,7 +109,7 @@ async function setEvent(req, res, next) {
 	next();
 }
 
-function errorHandler(err, req, res, next) {
+function errorHandler(err: ResponseError, req: express.Request, res: express.Response, next: express.NextFunction) {
 	if (res.headersSent) return next(err);
 
 	console.log(err.message, "an error occured with the file upload");

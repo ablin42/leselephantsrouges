@@ -1,14 +1,19 @@
-const pe = require("parse-error");
-const Image = require("../../models/Image");
-const User = require("../../models/User");
+import pe from "parse-error";
+import express from "express";
+import mime from "mime-types";
+import aws from "aws-sdk";
+
+import Image from "../../models/Image";
+import User from "../../models/User";
 const { validationResult } = require("express-validator");
-const mime = require("mime-types");
-const aws = require("aws-sdk");
-aws.config.region = process.env.AWS_REGION;
+import ERROR_MESSAGE from "./errorMessages";
 require("dotenv").config();
 
-let utils =  {
-	emailExist: async function emailExist(email) {
+const BUCKET = "" + process.env.S3_BUCKET;
+aws.config.region = process.env.AWS_REGION;
+
+let utils = {
+	emailExist: async function emailExist(email: string) {
 		if (await User.findOne({ email: email })) return true;
 
 		return false;
@@ -28,9 +33,9 @@ let utils =  {
 		if (isAllowedExt && isAllowedMimeType) return cb(null, true);
 		else cb(new Error("File type not allowed"));
 	},
-	toTitleCase: function (phrase) {
+	toTitleCase: function (phrase: string) {
 		let arr = phrase.toLowerCase().split(" ");
-		let parsed = [];
+		let parsed: Array<string> = [];
 
 		arr.forEach(item => {
 			let obj = item.charAt(0).toUpperCase() + item.slice(1);
@@ -40,7 +45,8 @@ let utils =  {
 
 		return parsed.join(" ");
 	},
-	saveImages: async function (imgData, itemId, itemType) {
+	saveImages: async function (imgData, itemId: string, itemType: string) {
+		let err, savedImage;
 		for (let i = 0; i < imgData.length; i++) {
 			let image = new Image({
 				_itemId: itemId,
@@ -54,7 +60,8 @@ let utils =  {
 			if (err || !savedImage) return ERROR_MESSAGE.saveError;
 		}
 	},
-	patchImages: async function (imgData, itemId, itemType) {
+	patchImages: async function (imgData, itemId: string, itemType: string) {
+		let err, currImg, patchedImg;
 		for (let i = 0; i < imgData.length; i++) {
 			let obj = {
 				path: imgData[i].path,
@@ -66,7 +73,7 @@ let utils =  {
 			if (err || !currImg) return ERROR_MESSAGE.fetchImg;
 
 			let s3 = new aws.S3();
-			let params = { Bucket: process.env.S3_BUCKET, Key: currImg.key };
+			let params = { Bucket: BUCKET, Key: currImg.key };
 			s3.deleteObject(params, function (err, data) {
 				if (err) throw new Error(ERROR_MESSAGE.delImg);
 			});
@@ -75,10 +82,11 @@ let utils =  {
 			if (err || !patchedImg) return ERROR_MESSAGE.saveError;
 		}
 	},
-	checkValidity: async function (req) {
+	checkValidity: async function (req: express.Request) {
 		const vResult = validationResult(req);
 		if (!vResult.isEmpty()) {
-			vResult.errors.forEach(item => {
+			vResult.errors.forEach((item: { msg: string }) => {
+				//object doesnt only have msg key
 				throw new Error(item.msg);
 			});
 		}
@@ -86,7 +94,7 @@ let utils =  {
 		return;
 	},
 	parseImgData: async function (files) {
-		let arr = [];
+		let arr: Array<{ key: string; path: string }> = [];
 		files.forEach(file => {
 			let obj = { key: file.key, path: file.location };
 			arr.push(obj);
@@ -95,13 +103,13 @@ let utils =  {
 
 		return arr;
 	},
-	parseAuthors: async function (authors) {
+	parseAuthors: async function (authors: string) {
 		let arr = authors.split(";");
 		if (arr[arr.length - 1] == "") arr.pop();
 
 		return arr;
 	},
-	parseUrl: async function (url) {
+	parseUrl: async function (url: string) {
 		let parsedUrl = "https://www.youtube.com/embed/";
 		let matched = url.match(/v=[^\s&]*/);
 
@@ -110,7 +118,7 @@ let utils =  {
 
 		return parsedUrl;
 	},
-	revertUrlFormat: async function (url) {
+	revertUrlFormat: async function (url: string) {
 		let parsedUrl = "https://www.youtube.com/watch?v=";
 		let matched = url.match(/embed\/[^\s&]*/);
 
@@ -120,6 +128,5 @@ let utils =  {
 		return parsedUrl;
 	}
 };
-
 
 export default utils;

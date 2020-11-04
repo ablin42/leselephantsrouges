@@ -2,8 +2,27 @@ import ERROR_MESSAGE from "./errorMessages";
 import utils from "./utils";
 import Image from "../../models/Image";
 
+interface Event {
+	_id: string;
+	url: string;
+	title: string;
+	description: string;
+	staff: string; //maybe array
+	shortdescription: string;
+	shorttitle: string;
+	eventStart: string;
+	eventEnd: string;
+	price: string;
+	date: Date;
+	address: string;
+	createdAt: Date;
+	updatedAt: Date;
+	__v: number;
+}
+
 export default {
-	fetchMainImg: async function (events) { // needs event interface
+	fetchMainImg: async function (events: Array<Event>) {
+		// needs event interface
 		let arr = [];
 		for (let i = 0; i < events.length; i++) {
 			let obj = {

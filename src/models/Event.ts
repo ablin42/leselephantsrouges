@@ -40,4 +40,4 @@ const eventSchema = new mongoose.Schema(
 );
 
 eventSchema.plugin(mongoosePaginate);
-module.exports = mongoose.model("Event", eventSchema);
+export default mongoose.model("Event", eventSchema);
