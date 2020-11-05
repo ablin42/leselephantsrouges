@@ -33,16 +33,15 @@ router.post("/", limiter, vContact, async (req, res) => {
 			content: content
 		};
 
-		if (req.session) //will maybe be deleted with reacti mplementation
-			req.session.formData = formData;
+		req!.session!.formData = formData;
 		await utils.checkValidity(req);
 
-		if (!process.env.EMAIL || await mailer(process.env.EMAIL, subject, content))
+		if (!process.env.EMAIL || (await mailer(process.env.EMAIL, subject, content)))
 			throw new Error("Une erreur est survenue lors de l'envoi du mail, veuillez réessayer");
 
 		console.log(`Contact mail sent: ${formData.email}`);
 		return res.status(200).json({ error: false, message: "Mail envoyé avec succès" });
-	} catch (err) { 
+	} catch (err) {
 		console.log("ERROR CONTACT:", err, req.headers);
 		return res.status(200).json({ error: true, message: err.message });
 	}

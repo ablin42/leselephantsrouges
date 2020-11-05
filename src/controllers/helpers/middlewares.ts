@@ -1,5 +1,5 @@
 import sanitize from "mongo-sanitize";
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 require("dotenv").config();
 
 import utils from "./utils";
@@ -8,15 +8,14 @@ import Video from "../../models/Video";
 import Event from "../../models/Event";
 import Image from "../../models/Image";
 import ERROR_MESSAGE from "./errorMessages";
-import { ResponseError } from "aws-sdk/clients/ec2";
 
 const ROLE = {
 	ADMIN: "admin",
 	BASIC: "basic"
 };
 
-async function setUser(req: express.Request, res: express.Response, next: express.NextFunction) {
-	const userId = req.session._id;
+async function setUser(req: Request, res: Response, next: NextFunction) {
+	const userId = req!.session!._id;
 
 	if (userId) {
 		let [err, user] = await utils.to(User.findById(userId));
@@ -31,7 +30,7 @@ async function setUser(req: express.Request, res: express.Response, next: expres
 	next();
 }
 
-function authUser(req: express.Request, res: express.Response, next: express.NextFunction) {
+function authUser(req: Request, res: Response, next: NextFunction) {
 	if (!req.user) {
 		//req.flash("warning", ERROR_MESSAGE.logInNeeded);
 		return res.status(403).redirect("/Auth");
@@ -40,7 +39,7 @@ function authUser(req: express.Request, res: express.Response, next: express.Nex
 	next();
 }
 
-function notLoggedUser(req: express.Request, res: express.Response, next: express.NextFunction) {
+function notLoggedUser(req: Request, res: Response, next: NextFunction) {
 	if (req.user) {
 		//req.flash("warning", ERROR_MESSAGE.alreadyLoggedIn);
 		return res.status(403).redirect("/Admin");
@@ -50,15 +49,15 @@ function notLoggedUser(req: express.Request, res: express.Response, next: expres
 }
 
 function authRole(role: string) {
-	return (req: express.Request, res: express.Response, next: express.NextFunction) => {
-		if (req.user.role !== role) {
+	return (req: Request, res: Response, next: NextFunction) => {
+		if (req!.user!.role !== role) {
 			//req.flash("warning", ERROR_MESSAGE.unauthorized);
 			return res.status(401).redirect("back");
 		} else next();
 	};
 }
 
-function authToken(req: express.Request, res: express.Response, next: express.NextFunction) {
+function authToken(req: Request, res: Response, next: NextFunction) {
 	const token = req.headers["access_token"];
 	if (!token || token !== process.env.ACCESS_TOKEN)
 		return res.status(200).json({ error: true, message: ERROR_MESSAGE.unauthorized });
@@ -66,7 +65,7 @@ function authToken(req: express.Request, res: express.Response, next: express.Ne
 	next();
 }
 
-async function setVideo(req: express.Request, res: express.Response, next: express.NextFunction) {
+async function setVideo(req: Request, res: Response, next: NextFunction) {
 	const id = sanitize(req.params.id);
 	let err, video, img;
 
@@ -83,12 +82,12 @@ async function setVideo(req: express.Request, res: express.Response, next: expre
 	[err, img] = await utils.to(Image.findOne({ itemType: "cover", _itemId: video._id }));
 	if (err) throw new Error(ERROR_MESSAGE.fetchImg);
 	if (!img) throw new Error(ERROR_MESSAGE.noResult);
-	req.video.mainImg = img.path;
+	req!.video!.mainImg = img.path;
 
 	next();
 }
 
-async function setEvent(req: express.Request, res: express.Response, next: express.NextFunction) {
+async function setEvent(req: Request, res: Response, next: NextFunction) {
 	const id = sanitize(req.params.id);
 	let err, event, img;
 
@@ -104,12 +103,12 @@ async function setEvent(req: express.Request, res: express.Response, next: expre
 
 	[err, img] = await utils.to(Image.findOne({ itemType: "event", _itemId: event._id }));
 	if (err) throw new Error(ERROR_MESSAGE.fetchImg);
-	if (img) req.event.mainImg = img.path;
+	if (img) req!.event!.mainImg = img.path;
 
 	next();
 }
 
-function errorHandler(err: ResponseError, req: express.Request, res: express.Response, next: express.NextFunction) {
+function errorHandler(err: ErrorEvent, req: Request, res: Response, next: NextFunction) {
 	if (res.headersSent) return next(err);
 
 	console.log(err.message, "an error occured with the file upload");

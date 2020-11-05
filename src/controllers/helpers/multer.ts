@@ -25,7 +25,7 @@ const upload = multer({
 	limits: {
 		fileSize: 25000000
 	},
-	fileFilter: function (req, file, cb) {
+	fileFilter: function (req, file: Express.MulterS3.File, cb) {
 		utils.sanitizeFile(file, cb);
 	}
 }).array("img");

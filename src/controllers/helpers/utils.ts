@@ -1,16 +1,23 @@
 import pe from "parse-error";
 import express from "express";
 import mime from "mime-types";
+import mongoose, { Query } from "mongoose";
 import aws from "aws-sdk";
 
 import Image from "../../models/Image";
 import User from "../../models/User";
 const { validationResult } = require("express-validator");
 import ERROR_MESSAGE from "./errorMessages";
+import { FileFilterCallback } from "multer";
 require("dotenv").config();
 
 const BUCKET = "" + process.env.S3_BUCKET;
 aws.config.region = process.env.AWS_REGION;
+
+interface ImageData {
+	key: string;
+	path: string;
+}
 
 let utils = {
 	emailExist: async function emailExist(email: string) {
@@ -18,14 +25,16 @@ let utils = {
 
 		return false;
 	},
-	to: function (promise) {
+	// | Promise<PaginateResult<any>>
+	to: async function (promise: Query<any> | Promise<mongoose.PaginateResult<any>>) {
 		return promise
 			.then(data => {
+				//
 				return [null, data];
 			})
-			.catch(err => [pe(err)]);
+			.catch(err => [pe(err)]); //
 	},
-	sanitizeFile: async function (file, cb) {
+	sanitizeFile: async function (file: Express.MulterS3.File, cb: FileFilterCallback) {
 		let fileExts = ["png", "jpg", "jpeg", "gif"];
 		let isAllowedExt = fileExts.includes(file.originalname.split(".")[1].toLowerCase());
 		let isAllowedMimeType = file.mimetype.startsWith("image/");
@@ -45,7 +54,7 @@ let utils = {
 
 		return parsed.join(" ");
 	},
-	saveImages: async function (imgData, itemId: string, itemType: string) {
+	saveImages: async function (imgData: Array<ImageData>, itemId: string, itemType: string) {
 		let err, savedImage;
 		for (let i = 0; i < imgData.length; i++) {
 			let image = new Image({
@@ -60,7 +69,7 @@ let utils = {
 			if (err || !savedImage) return ERROR_MESSAGE.saveError;
 		}
 	},
-	patchImages: async function (imgData, itemId: string, itemType: string) {
+	patchImages: async function (imgData: Array<ImageData>, itemId: string, itemType: string) {
 		let err, currImg, patchedImg;
 		for (let i = 0; i < imgData.length; i++) {
 			let obj = {
@@ -93,9 +102,20 @@ let utils = {
 
 		return;
 	},
-	parseImgData: async function (files) {
-		let arr: Array<{ key: string; path: string }> = [];
-		files.forEach(file => {
+	//  interface Request {
+	//         /** `Multer.File` object populated by `single()` middleware. */
+	//         file: Multer.File;
+	//         /**
+	//          * Array or dictionary of `Multer.File` object populated by `array()`,
+	//          * `fields()`, and `any()` middleware.
+	//          */
+	//         files: {
+	//             [fieldname: string]: Multer.File[];
+	//         } | Multer.File[];
+	//     }
+	parseImgData: async function (files: Array<Express.MulterS3.File>) {
+		let arr: Array<ImageData> = [];
+		files.forEach((file: Express.MulterS3.File) => {
 			let obj = { key: file.key, path: file.location };
 			arr.push(obj);
 		});

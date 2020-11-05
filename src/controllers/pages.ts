@@ -84,10 +84,8 @@ router.get("/Auth", setUser, notLoggedUser, async (req, res) => {
 			csrfToken: req.csrfToken(),
 			formData: {}
 		};
-		if (req.session.formData) {
-			obj.formData = req.session.formData;
-			req.session.formData = undefined;
-		}
+		obj.formData = req!.session!.formData;
+		req!.session!.formData = undefined;
 
 		return res.status(200).render("Auth", obj);
 	} catch (err) {

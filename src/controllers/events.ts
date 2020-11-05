@@ -19,7 +19,7 @@ require("dotenv").config();
 router.get("/", async (req, res) => {
 	try {
 		const options = {
-			page: parseInt(req.query.page, 10) || 1,
+			page: parseInt(req.query.page as string, 10) || 1,
 			limit: 12,
 			sort: { date: -1 }
 		};
@@ -53,15 +53,16 @@ router.post("/", upload, errorHandler, vEvent, setUser, authUser, authRole(ROLE.
 			url: ""
 		};
 		let imgData;
+		const files = req.files as Express.MulterS3.File[];
 
 		if (req.body.url) obj.url = await utils.parseUrl(req.body.url);
-		if (req.files.length > 0) imgData = await utils.parseImgData(req.files);
+		if (req.files.length > 0) imgData = await utils.parseImgData(files);
 
 		let newEvent = new Event(obj);
 		let [err, result] = await utils.to(newEvent.save());
 		if (err) throw new Error(ERROR_MESSAGE.saveError);
 
-		if (req.files.length > 0) {
+		if (req.files.length > 0 && imgData) {
 			err = await utils.saveImages(imgData, result._id, "event");
 			if (err) throw new Error(err);
 		}
@@ -89,15 +90,16 @@ router.post("/:id", upload, errorHandler, vEvent, setEvent, setUser, authUser, a
 			url: ""
 		};
 		let imgData;
+		const files = req.files as Express.MulterS3.File[];
 
 		if (req.body.url) obj.url = await utils.parseUrl(req.body.url);
-		if (req.files.length > 0) imgData = await utils.parseImgData(req.files);
+		if (req.files.length > 0) imgData = await utils.parseImgData(files);
 
 		let [err, result] = await utils.to(Event.updateOne({ _id: id }, { $set: obj }));
 		if (err) throw new Error(ERROR_MESSAGE.updateError);
 		if (!result) throw new Error(ERROR_MESSAGE.noResult);
 
-		if (req.files.length > 0) {
+		if (req.files.length > 0 && imgData) {
 			err = await utils.patchImages(imgData, id, "event");
 			if (err) throw new Error(err);
 		}

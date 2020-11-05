@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request } from "express";
 const router = express.Router();
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -6,7 +6,7 @@ import sanitize from "mongo-sanitize";
 import * as rateLimit from "express-rate-limit";
 import * as MongoStore from "rate-limit-mongo";
 
-const { vRegister, vLogin, vPassword, vLostPw, vEmail } = require("./validators/vAuth");//
+const { vRegister, vLogin, vPassword, vLostPw, vEmail } = require("./validators/vAuth"); //
 import mailer from "./helpers/mailer";
 import utils from "./helpers/utils";
 
@@ -14,7 +14,7 @@ import User from "../models/User";
 import PwToken from "../models/PasswordToken";
 import Token from "../models/VerificationToken";
 
-const { setUser, notLoggedUser, authUser, authToken } = require("./helpers/middlewares");//
+const { setUser, notLoggedUser, authUser, authToken } = require("./helpers/middlewares"); //
 import ERROR_MESSAGE from "./helpers/errorMessages";
 require("dotenv").config();
 
@@ -71,10 +71,10 @@ const lostpwlimiter = rateLimit({
 	}
 });
 
-router.post("/register", registerlimiter, vRegister, setUser, notLoggedUser, async (req: any, res) => {
+router.post("/register", registerlimiter, vRegister, setUser, notLoggedUser, async (req, res) => {
 	try {
 		let err, result;
-		req.session.formData = {
+		req!.session!.formData = {
 			email: req.body.email
 		};
 		await utils.checkValidity(req);
@@ -83,7 +83,7 @@ router.post("/register", registerlimiter, vRegister, setUser, notLoggedUser, asy
 		if (!hashPw) throw new Error(ERROR_MESSAGE.serverError);
 
 		const user = new User({
-			email: req.session.formData.email,
+			email: req!.session!.formData.email,
 			password: hashPw
 		});
 
@@ -98,9 +98,18 @@ router.post("/register", registerlimiter, vRegister, setUser, notLoggedUser, asy
 	}
 });
 
+// interface Session {
+// 	formData?: object;
+// 	_id?: string;
+// }
+
+// interface Request {
+// 	session: Session;
+// }
+
 router.post("/login", authlimiter, vLogin, setUser, notLoggedUser, async (req, res) => {
 	try {
-		req.session.formData = { email: req.body.email };
+		req!.session!.formData = { email: req.body.email };
 
 		await utils.checkValidity(req);
 
@@ -112,7 +121,7 @@ router.post("/login", authlimiter, vLogin, setUser, notLoggedUser, async (req, r
 		if (!validPw) throw new Error(ERROR_MESSAGE.invalidCredentials);
 
 		// Create session variable
-		req.session._id = user._id;
+		req!.session!._id = user._id;
 
 		console.log(`User log in: ${user._id}`);
 		//req.flash("success", ERROR_MESSAGE.loggedIn);
@@ -125,7 +134,7 @@ router.post("/login", authlimiter, vLogin, setUser, notLoggedUser, async (req, r
 
 router.get("/logout", setUser, authUser, (req, res) => {
 	try {
-		req.session.destroy(function (err) {
+		req!.session!.destroy(function (err) {
 			if (err) throw new Error(ERROR_MESSAGE.serverError);
 		});
 
@@ -206,7 +215,7 @@ router.post("/patch/email", limiter, vEmail, setUser, authUser, async (req, res)
 		let err, user, token, result;
 		await utils.checkValidity(req);
 		const newEmail = req.body.email;
-		const id = req.user._id;
+		const id = req!.user!._id;
 		const vToken = crypto.randomBytes(16).toString("hex");
 
 		[err, user] = await utils.to(User.updateOne({ _id: id }, { $set: { email: newEmail, isVerified: false } }));
@@ -268,7 +277,7 @@ router.post("/patch/password", limiter, vPassword, setUser, authUser, async (req
 		const password = req.body.password;
 		let err, user, result;
 
-		[err, user] = await utils.to(User.findOne({ email: req.user.email }));
+		[err, user] = await utils.to(User.findOne({ email: req!.user!.email }));
 		if (err) throw new Error(ERROR_MESSAGE.serverError);
 		if (!user) throw new Error(ERROR_MESSAGE.invalidCredentials);
 

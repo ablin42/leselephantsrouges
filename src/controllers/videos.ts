@@ -26,7 +26,7 @@ const limiter = rateLimit({
 	}),
 	windowMs: 6 * 60 * 60 * 1000,
 	max: 20,
-	handler: function (eq: express.Request, res: express.Response) {
+	handler: function (req: express.Request, res: express.Response) {
 		res.status(200).json({ error: true, message: "Too many requests, please try again later" });
 	}
 });
@@ -34,7 +34,7 @@ const limiter = rateLimit({
 router.get("/", async (req, res) => {
 	try {
 		const options = {
-			page: parseInt(req.query.page, 10) || 1, /////////
+			page: parseInt(req.query.page as string, 10) || 1,
 			limit: 12,
 			sort: { date: -1 }
 		};
@@ -64,7 +64,8 @@ router.post("/", upload, errorHandler, vVideo, setUser, authUser, authRole(ROLE.
 			isFiction: req.body.isFiction,
 			authors: await utils.parseAuthors(req.body.authors)
 		};
-		let imgData = await utils.parseImgData(req.files);
+		const files = req.files as Express.MulterS3.File[];
+		let imgData = await utils.parseImgData(files);
 
 		let newVideo = new Video(obj);
 		let [err, result] = await utils.to(newVideo.save());
@@ -93,14 +94,14 @@ router.post("/:id", upload, errorHandler, vVideo, setVideo, setUser, authUser, a
 			authors: await utils.parseAuthors(req.body.authors)
 		};
 		let imgData;
-
-		if (req.files.length > 0) imgData = await utils.parseImgData(req.files);
+		const files = req.files as Express.MulterS3.File[];
+		if (req.files.length > 0) imgData = await utils.parseImgData(files);
 
 		let [err, result] = await utils.to(Video.updateOne({ _id: id }, { $set: obj }));
 		if (err) throw new Error(ERROR_MESSAGE.updateError);
 		if (!result) throw new Error(ERROR_MESSAGE.noResult);
 
-		if (req.files.length > 0) {
+		if (req.files.length > 0 && imgData) {
 			err = await utils.patchImages(imgData, id, "cover");
 			if (err) throw new Error(err);
 		}
