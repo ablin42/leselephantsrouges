@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 import * as rateLimit from "express-rate-limit";
-import * as MongoStore from "rate-limit-mongo";
+import MongoStore from "rate-limit-mongo";
 require("dotenv").config();
 
 //const { setUser } = require("./helpers/middlewares.js");

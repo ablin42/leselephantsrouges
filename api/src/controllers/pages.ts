@@ -183,7 +183,7 @@ router.get("/Admin/Videos/Patch/:id", setVideo, setUser, authUser, authRole(ROLE
 		};
 		const id = sanitize(req.params.id);
 		obj.video = JSON.parse(JSON.stringify(req.video));
-		obj.video.url = await utils.revertUrlFormat(obj.video.url);
+		//obj.video.url = await utils.revertUrlFormat(obj.video.url);
 
 		let [err, img] = await utils.to(Image.findOne({ _itemId: id }));
 		if (err || !img) throw new Error(ERROR_MESSAGE.fetchError);
@@ -227,14 +227,14 @@ router.get("/Admin/Events/Patch/:id", setEvent, setUser, authUser, authRole(ROLE
 		};
 		const id = sanitize(req.params.id);
 		obj.event = JSON.parse(JSON.stringify(req.event));
-		if (obj.event.url && obj.event.url != "") obj.event.url = await utils.revertUrlFormat(obj.event.url);
+		// if (obj.event.url && obj.event.url != "") obj.event.url = await utils.revertUrlFormat(obj.event.url);
 
-		if (obj.event.eventStart) obj.event.eventStart = obj.event.eventStart.substr(0, obj.event.eventStart.length - 8);
-		if (obj.event.eventEnd) obj.event.eventEnd = obj.event.eventEnd.substr(0, obj.event.eventEnd.length - 8);
+		// if (obj.event.eventStart) obj.event.eventStart = obj.event.eventStart.substr(0, obj.event.eventStart.length - 8);
+		// if (obj.event.eventEnd) obj.event.eventEnd = obj.event.eventEnd.substr(0, obj.event.eventEnd.length - 8);
 
-		let [err, img] = await utils.to(Image.findOne({ _itemId: id }));
-		if (err) throw new Error(ERROR_MESSAGE.fetchError);
-		if (img) obj.image = img;
+		// let [err, img] = await utils.to(Image.findOne({ _itemId: id }));
+		// if (err) throw new Error(ERROR_MESSAGE.fetchError);
+		// if (img) obj.image = img;
 
 		return res.status(200).render("restricted/patchEvent", obj);
 	} catch (err) {
