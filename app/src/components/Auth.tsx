@@ -2,8 +2,50 @@ import React, { useState, useEffect } from "react";
 import { Switch, Route, useRouteMatch, useParams, Redirect } from "react-router-dom";
 import "../main.css";
 import axios from "axios";
+import { createAlertNode, addAlert } from "./utils/alert";
 
 function Video() {
+	const [state, setState] = useState({ value: "", errorMsg: "" }); //
+
+	async function checkErrors(value: string) {
+		let errMsg = "";
+
+		//if (value.length > 0) if (!validUrl.isWebUri(value)) errMsg = "URL not properly formatted";
+
+		return errMsg;
+	}
+
+	async function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
+		let value = e.target.value.trim();
+		//modular
+
+		let errorMsg = await checkErrors(value);
+		setState({ value: value, errorMsg: errorMsg });
+	}
+
+	function postAuth(longUrl: string) {
+		axios
+			.post("/api/auth/login", {
+				longUrl: longUrl //
+			})
+			.then(function (response) {
+				if (!response.data.error) window.location.href = "/link/" + response.data.urlCode;
+				else {
+					let alert = createAlertNode(response.data.message, "error");
+					addAlert(alert, "#alert-wrapper");
+				}
+			})
+			.catch(function (error) {
+				let alert = createAlertNode("Une erreur est survenue lors du log in", "error");
+				addAlert(alert, "#alert-wrapper");
+			});
+	}
+
+	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault();
+		postAuth(state.value);
+	}
+
 	return (
 		<>
 			<div className="container container-front" id="container-login">
