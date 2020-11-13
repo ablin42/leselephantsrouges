@@ -1,23 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -33,14 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
-const rateLimit = __importStar(require("express-rate-limit"));
+const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const rate_limit_mongo_1 = __importDefault(require("rate-limit-mongo"));
-require("dotenv").config();
+require("dotenv").config({ path: '../.env' });
 //const { setUser } = require("./helpers/middlewares.js");
 const { vContact } = require("./validators/vContact");
 const mailer_1 = __importDefault(require("./helpers/mailer"));
 const utils_1 = __importDefault(require("./helpers/utils"));
-const limiter = rateLimit({
+const limiter = express_rate_limit_1.default({
     store: new rate_limit_mongo_1.default({
         uri: process.env.DB_CONNECTION,
         collectionName: "contactRateLimit",

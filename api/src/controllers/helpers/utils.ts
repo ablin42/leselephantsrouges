@@ -9,7 +9,7 @@ import User from "../../models/User";
 const { validationResult } = require("express-validator");
 import ERROR_MESSAGE from "./errorMessages";
 import { FileFilterCallback } from "multer";
-require("dotenv").config();
+require("dotenv").config({ path: '../.env' });
 
 const BUCKET = "" + process.env.S3_BUCKET;
 aws.config.region = process.env.AWS_REGION;
@@ -25,14 +25,13 @@ let utils = {
 
 		return false;
 	},
-	// | Promise<PaginateResult<any>>
-	to: async function (promise: Query<any> | Promise<mongoose.PaginateResult<any>>) {
+	// Query<any> | Promise<PaginateResult<any>>
+	to: async function (promise: any) {
 		return promise
-			.then(data => {
-				//
+			.then((data: any) => {
 				return [null, data];
 			})
-			.catch(err => [pe(err)]); //
+			.catch((err: any) => [pe(err)]);
 	},
 	sanitizeFile: async function (file: Express.MulterS3.File, cb: FileFilterCallback) {
 		let fileExts = ["png", "jpg", "jpeg", "gif"];

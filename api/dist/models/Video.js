@@ -1,11 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const mongoose_paginate_v2_1 = __importDefault(require("mongoose-paginate-v2"));
-const videoSchema = new mongoose_1.default.Schema({
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
+const videoSchema = new mongoose.Schema({
     url: {
         type: String,
         required: true
@@ -33,5 +30,5 @@ const videoSchema = new mongoose_1.default.Schema({
         default: Date.now
     }
 }, { timestamps: true });
-videoSchema.plugin(mongoose_paginate_v2_1.default);
-exports.default = mongoose_1.default.model("Video", videoSchema);
+videoSchema.plugin(mongoosePaginate);
+exports.default = mongoose.model("Video", videoSchema);

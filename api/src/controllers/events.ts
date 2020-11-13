@@ -14,7 +14,7 @@ import Image from "../models/Image";
 import aws from "aws-sdk";
 aws.config.region = process.env.AWS_REGION;
 const BUCKET = "" + process.env.S3_BUCKET;
-require("dotenv").config();
+require("dotenv").config({ path: "../.env" });
 
 router.get("/", async (req, res) => {
 	try {

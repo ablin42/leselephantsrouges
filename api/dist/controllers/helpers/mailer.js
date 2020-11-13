@@ -74,7 +74,7 @@ function mailer(email, subject, text, url = `${process.env.BASEURL}`) {
 				</div>
 		`;
         }
-        transporter.sendMail(mailOptions, (err) => {
+        transporter.sendMail(mailOptions, err => {
             if (err) {
                 console.log("MAILING ERROR:", err, mailOptions.to, mailOptions.subject);
                 return true;

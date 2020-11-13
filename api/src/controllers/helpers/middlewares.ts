@@ -1,6 +1,6 @@
 import sanitize from "mongo-sanitize";
 import express, { Request, Response, NextFunction } from "express";
-require("dotenv").config();
+require("dotenv").config({ path: '../.env' });
 
 import utils from "./utils";
 import User from "../../models/User";

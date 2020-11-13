@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongo_sanitize_1 = __importDefault(require("mongo-sanitize"));
-require("dotenv").config();
+require("dotenv").config({ path: '../.env' });
 const utils_1 = __importDefault(require("./utils"));
 const User_1 = __importDefault(require("../../models/User"));
 const Video_1 = __importDefault(require("../../models/Video"));

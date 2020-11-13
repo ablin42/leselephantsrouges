@@ -63,7 +63,7 @@ export default async function mailer(email: string, subject: string, text: strin
 				</div>
 		`;
 	}
-	transporter.sendMail(mailOptions, (err: object) => {
+	transporter.sendMail(mailOptions, err => {
 		if (err) {
 			console.log("MAILING ERROR:", err, mailOptions.to, mailOptions.subject);
 			return true;

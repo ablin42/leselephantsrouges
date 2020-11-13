@@ -1,8 +1,8 @@
 import express from "express";
 const router = express.Router();
 import sanitize from "mongo-sanitize";
-import * as rateLimit from "express-rate-limit";
-import * as MongoStore from "rate-limit-mongo";
+import rateLimit from "express-rate-limit";
+import MongoStore from "rate-limit-mongo";
 
 import upload from "./helpers/multer";
 const { vVideo } = require("./validators/vVideo");
@@ -16,7 +16,7 @@ import Image from "../models/Image";
 import aws from "aws-sdk";
 aws.config.region = process.env.AWS_REGION;
 const BUCKET = "" + process.env.S3_BUCKET;
-require("dotenv").config();
+require("dotenv").config({ path: '../.env' });
 
 const limiter = rateLimit({
 	store: new MongoStore({

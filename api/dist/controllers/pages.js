@@ -21,7 +21,7 @@ const utils_1 = __importDefault(require("./helpers/utils"));
 const Image_1 = __importDefault(require("../models/Image"));
 const errorMessages_1 = __importDefault(require("./helpers/errorMessages"));
 const PasswordToken_1 = __importDefault(require("../models/PasswordToken"));
-require("dotenv").config();
+require("dotenv").config({ path: '../.env' });
 router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let obj = { csrfToken: req.csrfToken() };

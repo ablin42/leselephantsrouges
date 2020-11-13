@@ -9,7 +9,7 @@ import Video from "../models/Video";
 import Image from "../models/Image";
 import ERROR_MESSAGE from "./helpers/errorMessages";
 import PwToken from "../models/PasswordToken";
-require("dotenv").config();
+require("dotenv").config({ path: '../.env' });
 
 router.get("/", async (req, res) => {
 	try {

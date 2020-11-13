@@ -1,8 +1,8 @@
 import express from "express";
 const router = express.Router();
-import * as rateLimit from "express-rate-limit";
+import rateLimit from "express-rate-limit";
 import MongoStore from "rate-limit-mongo";
-require("dotenv").config();
+require("dotenv").config({ path: '../.env' });
 
 //const { setUser } = require("./helpers/middlewares.js");
 const { vContact } = require("./validators/vContact");

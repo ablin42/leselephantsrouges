@@ -12,13 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const parse_error_1 = __importDefault(require("parse-error"));
 const mime_types_1 = __importDefault(require("mime-types"));
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
 const Image_1 = __importDefault(require("../../models/Image"));
 const User_1 = __importDefault(require("../../models/User"));
 const { validationResult } = require("express-validator");
 const errorMessages_1 = __importDefault(require("./errorMessages"));
-require("dotenv").config();
+require("dotenv").config({ path: '../.env' });
 const BUCKET = "" + process.env.S3_BUCKET;
 aws_sdk_1.default.config.region = process.env.AWS_REGION;
 let utils = {
@@ -29,16 +30,14 @@ let utils = {
             return false;
         });
     },
-    // | Promise<PaginateResult<any>>
+    // Query<any> | Promise<PaginateResult<any>>
     to: function (promise) {
         return __awaiter(this, void 0, void 0, function* () {
-            return [null, ""];
-            // return promise
-            // 	.then(data => {
-            // 		//
-            // 		return [null, data];
-            // 	})
-            // 	.catch(err => [pe(err)]); //
+            return promise
+                .then((data) => {
+                return [null, data];
+            })
+                .catch((err) => [parse_error_1.default(err)]);
         });
     },
     sanitizeFile: function (file, cb) {

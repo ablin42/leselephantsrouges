@@ -7,20 +7,31 @@ import session from "express-session";
 //import flash from "flash";
 import csurf from "csurf";
 
-import * as expressSanitizer from "express-sanitizer";
+import { graphqlHTTP } from "express-graphql";
+import { graphql, GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLList, GraphQLInt, GraphQLNonNull } from "graphql";
+const { graphqlUploadExpress } = require("graphql-upload-minimal");
+
+import expressSanitizer from "express-sanitizer";
 import sanitize from "mongo-sanitize";
 import * as aws from "aws-sdk";
 import path from "path";
 
 const MongoStore = require("connect-mongo")(session);
-require("dotenv").config();
+require("dotenv").config({ path: "../.env" });
 aws.config.region = process.env.AWS_REGION;
 
-import pagesRoute from "./controllers/pages";
+import Event from "./models/Event";
+
+import { EventType, typeDefs } from "./graphql/schemas/main";
+import { RootQueryType, RootMutationType, resolvers } from "./graphql/resolvers/main";
+
+import ERROR_MESSAGE from "./controllers/helpers/errorMessages";
+import utils from "./controllers/helpers/utils";
 import contactRoute from "./controllers/contact";
 import authRoute from "./controllers/auth";
 import videosRoute from "./controllers/videos";
 import eventsRoute from "./controllers/events";
+import { ApolloServer } from "apollo-server-express";
 
 const CONNECTION_STRING = process.env.DB_CONNECTION;
 const SESSION_SECRET = "" + process.env.SESSION_SECRET;
@@ -81,6 +92,28 @@ app.use(
 	})
 );
 
+//make sure password is NEVER returned from user type
+//mongodb transaction when operating on two models at once
+
+let schema = new GraphQLSchema({
+	query: RootQueryType,
+	mutation: RootMutationType
+});
+
+// import upload from "./controllers/helpers/multer";
+
+// app.use(upload);
+
+const server = new ApolloServer({ typeDefs, resolvers });
+server.applyMiddleware({ app });
+// app.use(
+// 	"/graphql",
+// 	graphqlHTTP({
+// 		schema: schema,
+// 		graphiql: true
+// 	})
+// );
+
 interface ResponseError extends Error {
 	status?: number;
 }
@@ -128,7 +161,7 @@ app.use(
 	})
 );
 
-app.use(csurf({ cookie: false }));
+//app.use(csurf({ cookie: false }));
 
 // Keep session
 app.use((req, res, next) => {
@@ -150,7 +183,7 @@ app.use(cors());
 //app.use(flash());
 
 // Routes
-app.use("/", pagesRoute);
+//app.use("/", pagesRoute);
 app.use("/api/contact", contactRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/events", eventsRoute);

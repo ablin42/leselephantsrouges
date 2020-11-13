@@ -28,20 +28,22 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const express_session_1 = __importDefault(require("express-session"));
-//import flash from "flash";
-const csurf_1 = __importDefault(require("csurf"));
-const expressSanitizer = __importStar(require("express-sanitizer"));
+const graphql_1 = require("graphql");
+const { graphqlUploadExpress } = require("graphql-upload-minimal");
+const express_sanitizer_1 = __importDefault(require("express-sanitizer"));
 const mongo_sanitize_1 = __importDefault(require("mongo-sanitize"));
 const aws = __importStar(require("aws-sdk"));
 const path_1 = __importDefault(require("path"));
 const MongoStore = require("connect-mongo")(express_session_1.default);
-require("dotenv").config();
+require("dotenv").config({ path: "../.env" });
 aws.config.region = process.env.AWS_REGION;
-const pages_1 = __importDefault(require("./controllers/pages"));
+const main_1 = require("./graphql/schemas/main");
+const main_2 = require("./graphql/resolvers/main");
 const contact_1 = __importDefault(require("./controllers/contact"));
 const auth_1 = __importDefault(require("./controllers/auth"));
 const videos_1 = __importDefault(require("./controllers/videos"));
 const events_1 = __importDefault(require("./controllers/events"));
+const apollo_server_express_1 = require("apollo-server-express");
 const CONNECTION_STRING = process.env.DB_CONNECTION;
 const SESSION_SECRET = "" + process.env.SESSION_SECRET;
 //Connect to DB
@@ -88,6 +90,16 @@ app.use(bodyParser.urlencoded({ extended: true, limit: 25000000 }));
 app.use(bodyParser.json({
     limit: 25000000
 }));
+//make sure password is NEVER returned from user type
+//mongodb transaction when operating on two models at once
+let schema = new graphql_1.GraphQLSchema({
+    query: main_2.RootQueryType,
+    mutation: main_2.RootMutationType
+});
+// import upload from "./controllers/helpers/multer";
+// app.use(upload);
+const server = new apollo_server_express_1.ApolloServer({ typeDefs: main_1.typeDefs, resolvers: main_2.resolvers });
+server.applyMiddleware({ app });
 // BP Error handler
 app.use(function (err, req, res, next) {
     res.status(err.status || 500);
@@ -128,7 +140,7 @@ app.use(helmet_1.default.contentSecurityPolicy({
     },
     reportOnly: false
 }));
-app.use(csurf_1.default({ cookie: false }));
+//app.use(csurf({ cookie: false }));
 // Keep session
 app.use((req, res, next) => {
     res.locals.session = req.session;
@@ -140,11 +152,11 @@ app.use((req, res, next) => {
     req.query = mongo_sanitize_1.default(req.query);
     next();
 });
-app.use(expressSanitizer());
+app.use(express_sanitizer_1.default());
 app.use(cors_1.default());
 //app.use(flash());
 // Routes
-app.use("/", pages_1.default);
+//app.use("/", pagesRoute);
 app.use("/api/contact", contact_1.default);
 app.use("/api/auth", auth_1.default);
 app.use("/api/events", events_1.default);

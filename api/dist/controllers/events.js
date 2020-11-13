@@ -26,7 +26,7 @@ const Image_1 = __importDefault(require("../models/Image"));
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
 aws_sdk_1.default.config.region = process.env.AWS_REGION;
 const BUCKET = "" + process.env.S3_BUCKET;
-require("dotenv").config();
+require("dotenv").config({ path: "../.env" });
 router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const options = {

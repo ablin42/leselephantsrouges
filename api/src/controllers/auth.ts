@@ -3,8 +3,8 @@ const router = express.Router();
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import sanitize from "mongo-sanitize";
-import * as rateLimit from "express-rate-limit";
-import * as MongoStore from "rate-limit-mongo";
+import rateLimit from "express-rate-limit";
+import MongoStore from "rate-limit-mongo";
 
 const { vRegister, vLogin, vPassword, vLostPw, vEmail } = require("./validators/vAuth"); //
 import mailer from "./helpers/mailer";
@@ -16,7 +16,7 @@ import Token from "../models/VerificationToken";
 
 const { setUser, notLoggedUser, authUser, authToken } = require("./helpers/middlewares"); //
 import ERROR_MESSAGE from "./helpers/errorMessages";
-require("dotenv").config();
+require("dotenv").config({ path: '../.env' });
 
 const limiter = rateLimit({
 	store: new MongoStore({
