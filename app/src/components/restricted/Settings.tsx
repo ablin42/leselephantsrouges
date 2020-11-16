@@ -1,33 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Switch, Route, useRouteMatch, useParams, Redirect } from "react-router-dom";
-import "../../main.css";
 import axios from "axios";
-import { createAlertNode, addAlert } from "../utils/alert";
 
-function typeGuardInput(
-	toBeDetermined: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
-): toBeDetermined is React.ChangeEvent<HTMLInputElement> {
-	if ((toBeDetermined as React.ChangeEvent<HTMLInputElement>).type) {
-		return true;
-	}
-	return false;
-}
+import "../../main.css";
+import { createAlertNode, addAlert } from "../utils/alert";
+import { handleInput } from "../utils/inputs";
+
 function ChangeEmail() {
 	let [form, setForm] = useState<any>({
 		email: ""
 	});
-
-	async function handleInput(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
-		let target = e.target;
-		let value: string | boolean = target.value.trim();
-		if (typeGuardInput(e) && target.type === "checkbox") value = e.target.checked;
-		const name = target.name;
-
-		setForm({
-			...form,
-			[name]: value
-		});
-	}
 
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
@@ -53,7 +34,15 @@ function ChangeEmail() {
 				<div className="col-md-12">
 					<form id="emailform" method="POST" action="/api/user/patch/email" onSubmit={handleSubmit}>
 						<label className="control-label">Email</label>
-						<input type="email" id="email" name="email" onChange={handleInput} value={form.email} data-vemail="true" required />
+						<input
+							type="email"
+							id="email"
+							name="email"
+							onChange={e => handleInput(e, form, setForm)}
+							value={form.email}
+							data-vemail="true"
+							required
+						/>
 						<span id="i_email" className="form-info">
 							<b>E-mail</b> has to be <b>valid</b>
 						</span>
@@ -73,18 +62,6 @@ function ChangePassword() {
 		password2: "",
 		cpassword: ""
 	});
-
-	async function handleInput(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
-		let target = e.target;
-		let value: string | boolean = target.value.trim();
-		if (typeGuardInput(e) && target.type === "checkbox") value = e.target.checked;
-		const name = target.name;
-
-		setForm({
-			...form,
-			[name]: value
-		});
-	}
 
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
@@ -118,7 +95,7 @@ function ChangePassword() {
 							name="cpassword"
 							id="cpassword"
 							placeholder="*********"
-							onChange={handleInput}
+							onChange={e => handleInput(e, form, setForm)}
 							value={form.cpassword}
 							required
 						/>
@@ -136,7 +113,7 @@ function ChangePassword() {
 							name="password"
 							placeholder="*********"
 							data-vpw="true"
-							onChange={handleInput}
+							onChange={e => handleInput(e, form, setForm)}
 							value={form.password}
 							required
 						/>
@@ -160,7 +137,7 @@ function ChangePassword() {
 							name="password2"
 							placeholder="*********"
 							data-vpw2="true"
-							onChange={handleInput}
+							onChange={e => handleInput(e, form, setForm)}
 							value={form.password2}
 							required
 						/>

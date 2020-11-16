@@ -3,15 +3,8 @@ import axios from "axios";
 
 import "../../main.css";
 import { addAlert, createAlertNode } from "../utils/alert";
+import { checkFile, checkFiles, handleInput } from "../utils/inputs";
 
-function typeGuardInput(
-	toBeDetermined: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
-): toBeDetermined is React.ChangeEvent<HTMLInputElement> {
-	if ((toBeDetermined as React.ChangeEvent<HTMLInputElement>).type) {
-		return true;
-	}
-	return false;
-}
 function PatchVideo() {
 	let [file, setFile] = useState<File | null>(null);
 	//any
@@ -23,24 +16,17 @@ function PatchVideo() {
 		authors: ""
 	});
 
-	async function handleInput(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
-		let target = e.target;
-		let value: string | boolean = target.value.trim();
-		if (typeGuardInput(e) && target.type === "checkbox") value = e.target.checked;
-		const name = target.name;
-
-		setForm({
-			...form,
-			[name]: value
-		});
-
-		//validate input
-		//let errorMsg = await checkErrors(value);
-	}
-
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		let formData = new FormData();
+		let fileError = checkFile(file);
+
+		if (fileError) {
+			let alert = createAlertNode(fileError, "error");
+			addAlert(alert, "#alert-wrapper");
+
+			return;
+		}
 
 		if (file) formData.append("img", file);
 		formData.append("title", form.title);
@@ -91,7 +77,7 @@ function PatchVideo() {
 							name="url"
 							data-vurl="true"
 							value={form.url}
-							onChange={handleInput}
+							onChange={e => handleInput(e, form, setForm)}
 							required
 						/>
 						<span id="i_url" className="form-info">
@@ -106,7 +92,7 @@ function PatchVideo() {
 							name="title"
 							data-vstring="1;256"
 							value={form.title}
-							onChange={handleInput}
+							onChange={e => handleInput(e, form, setForm)}
 							required
 						/>
 						<span id="i_title" className="form-info">
@@ -119,7 +105,7 @@ function PatchVideo() {
 							id="description"
 							name="description"
 							value={form.description}
-							onChange={handleInput}
+							onChange={e => handleInput(e, form, setForm)}
 							data-vstring="1;2048"
 							rows={5}
 							required
@@ -135,10 +121,16 @@ function PatchVideo() {
 							id="authors"
 							name="authors"
 							value={form.authors}
-							onChange={handleInput}
+							onChange={e => handleInput(e, form, setForm)}
 						/>
 
-						<input type="checkbox" name="isFiction" id="isFiction" value={form.isFiction} onChange={handleInput} />
+						<input
+							type="checkbox"
+							name="isFiction"
+							id="isFiction"
+							value={form.isFiction}
+							onChange={e => handleInput(e, form, setForm)}
+						/>
 
 						{/* <img src="<%= locals.image.path %>" /> */}
 						{/* <div className="form-group text-center">

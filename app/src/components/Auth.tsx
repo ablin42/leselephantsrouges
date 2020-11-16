@@ -3,33 +3,14 @@ import React, { useState } from "react";
 import "../main.css";
 import axios from "axios";
 import { createAlertNode, addAlert } from "./utils/alert";
-
-function typeGuardInput(
-	toBeDetermined: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
-): toBeDetermined is React.ChangeEvent<HTMLInputElement> {
-	if ((toBeDetermined as React.ChangeEvent<HTMLInputElement>).type) {
-		return true;
-	}
-	return false;
-}
+import { typeGuardInput } from "./utils/typeGuards";
+import { checkFile, checkFiles, handleInput } from "./utils/inputs";
 
 function Login() {
 	let [form, setForm] = useState<any>({
 		email: "",
 		password: ""
 	});
-
-	async function handleInput(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
-		let target = e.target;
-		let value: string | boolean = target.value.trim();
-		if (typeGuardInput(e) && target.type === "checkbox") value = e.target.checked;
-		const name = target.name;
-
-		setForm({
-			...form,
-			[name]: value
-		});
-	}
 
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
@@ -69,7 +50,7 @@ function Login() {
 							type="email"
 							id="login-email"
 							name="email"
-							onChange={handleInput}
+							onChange={e => handleInput(e, form, setForm)}
 							value={form.email}
 							required
 						/>
@@ -82,7 +63,7 @@ function Login() {
 							type="password"
 							id="login-pw"
 							name="password"
-							onChange={handleInput}
+							onChange={e => handleInput(e, form, setForm)}
 							value={form.password}
 							required
 						/>
@@ -100,18 +81,6 @@ function Recovery() {
 		email: "",
 		password: ""
 	});
-
-	async function handleInput(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
-		let target = e.target;
-		let value: string | boolean = target.value.trim();
-		if (typeGuardInput(e) && target.type === "checkbox") value = e.target.checked;
-		const name = target.name;
-
-		setForm({
-			...form,
-			[name]: value
-		});
-	}
 
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
@@ -153,7 +122,7 @@ function Recovery() {
 							type="email"
 							id="email-reset"
 							name="email"
-							onChange={handleInput}
+							onChange={e => handleInput(e, form, setForm)}
 							value={form.email}
 							data-vemail="true"
 							required

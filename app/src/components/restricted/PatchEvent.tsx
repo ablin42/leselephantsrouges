@@ -1,17 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Switch, Route, useRouteMatch, useParams, Redirect } from "react-router-dom";
 import "../../main.css";
 import axios from "axios";
 import { createAlertNode, addAlert } from "../utils/alert";
-
-function typeGuardInput(
-	toBeDetermined: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
-): toBeDetermined is React.ChangeEvent<HTMLInputElement> {
-	if ((toBeDetermined as React.ChangeEvent<HTMLInputElement>).type) {
-		return true;
-	}
-	return false;
-}
+import { checkFile, checkFiles, handleInput } from "../utils/inputs";
 
 function PatchEvent() {
 	let [file, setFile] = useState<File | null>(null);
@@ -26,21 +17,18 @@ function PatchEvent() {
 		price: "",
 		staff: ""
 	});
-	async function handleInput(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
-		let target = e.target;
-		let value: string | boolean = target.value.trim();
-		if (typeGuardInput(e) && target.type === "checkbox") value = e.target.checked;
-		const name = target.name;
-
-		setForm({
-			...form,
-			[name]: value
-		});
-	}
 
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		let formData = new FormData();
+		let fileError = checkFile(file);
+
+		if (fileError) {
+			let alert = createAlertNode(fileError, "error");
+			addAlert(alert, "#alert-wrapper");
+
+			return;
+		}
 
 		if (file) formData.append("img", file);
 		formData.append("title", form.title);
@@ -89,7 +77,7 @@ function PatchEvent() {
 					id="title"
 					name="title"
 					data-vstring="1;256"
-					onChange={handleInput}
+					onChange={e => handleInput(e, form, setForm)}
 					value={form.title}
 					required
 				/>
@@ -103,7 +91,7 @@ function PatchEvent() {
 					id="description"
 					name="description"
 					data-vstring="1;2048"
-					onChange={handleInput}
+					onChange={e => handleInput(e, form, setForm)}
 					value={form.description}
 					rows={5}
 					required
@@ -113,10 +101,22 @@ function PatchEvent() {
 				</span>
 
 				<label className="control-label">Début de l'événement</label>
-				<input type="datetime-local" id="eventStart" name="eventStart" onChange={handleInput} value={form.eventStart} />
+				<input
+					type="datetime-local"
+					id="eventStart"
+					name="eventStart"
+					onChange={e => handleInput(e, form, setForm)}
+					value={form.eventStart}
+				/>
 
 				<label className="control-label">Fin de l'événement</label>
-				<input type="datetime-local" id="eventEnd" name="eventEnd" onChange={handleInput} value={form.eventEnd} />
+				<input
+					type="datetime-local"
+					id="eventEnd"
+					name="eventEnd"
+					onChange={e => handleInput(e, form, setForm)}
+					value={form.eventEnd}
+				/>
 
 				<label className="control-label">Adresse</label>
 				<input
@@ -125,7 +125,7 @@ function PatchEvent() {
 					id="address"
 					name="address"
 					data-vstring="0;256"
-					onChange={handleInput}
+					onChange={e => handleInput(e, form, setForm)}
 					value={form.address}
 				/>
 				<span id="i_address" className="form-info">
@@ -140,7 +140,7 @@ function PatchEvent() {
 					id="price"
 					name="price"
 					step=".01"
-					onChange={handleInput}
+					onChange={e => handleInput(e, form, setForm)}
 					value={form.price}
 				/>
 
@@ -150,7 +150,7 @@ function PatchEvent() {
 					type="text"
 					id="staff"
 					name="staff"
-					onChange={handleInput}
+					onChange={e => handleInput(e, form, setForm)}
 					value={form.staff}
 				/>
 
@@ -161,7 +161,7 @@ function PatchEvent() {
 					id="url"
 					name="url"
 					data-vurl="true"
-					onChange={handleInput}
+					onChange={e => handleInput(e, form, setForm)}
 					value={form.url}
 				/>
 				<span id="i_url" className="form-info">

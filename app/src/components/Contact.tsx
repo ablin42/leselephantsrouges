@@ -1,17 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { Switch, Route, useRouteMatch, useParams, Redirect } from "react-router-dom";
+import React, { useState } from "react";
 import "../main.css";
 import axios from "axios";
 import { createAlertNode, addAlert } from "./utils/alert";
-
-function typeGuardInput(
-	toBeDetermined: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
-): toBeDetermined is React.ChangeEvent<HTMLInputElement> {
-	if ((toBeDetermined as React.ChangeEvent<HTMLInputElement>).type) {
-		return true;
-	}
-	return false;
-}
+import { typeGuardInput } from "./utils/typeGuards";
+import { checkFile, checkFiles, handleInput } from "./utils/inputs";
 
 function Contact() {
 	let [form, setForm] = useState<any>({
@@ -20,18 +12,6 @@ function Contact() {
 		content: ""
 	});
 
-	async function handleInput(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
-		let target = e.target;
-		let value: string | boolean = target.value.trim();
-		if (typeGuardInput(e) && target.type === "checkbox") value = e.target.checked;
-		const name = target.name;
-
-		setForm({
-			...form,
-			[name]: value
-		});
-	}
-
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 
@@ -39,7 +19,10 @@ function Contact() {
 			.post("/api/contact", form)
 			.then(function (response) {
 				let alertType = "error";
-				if (!response.data.error) alertType = "success";
+				if (!response.data.error) {
+					alertType = "success";
+					setForm({ email: "", title: "", content: "" });
+				}
 
 				let alert = createAlertNode(response.data.message, alertType);
 				addAlert(alert, "#alert-wrapper");
@@ -59,7 +42,7 @@ function Contact() {
 						placeholder="jeandupont@gmail.com"
 						type="email"
 						name="email"
-						onChange={handleInput}
+						onChange={e => handleInput(e, form, setForm)}
 						value={form.email}
 						id="email"
 						data-vemail="true"
@@ -78,7 +61,7 @@ function Contact() {
 						type="text"
 						name="title"
 						id="title"
-						onChange={handleInput}
+						onChange={e => handleInput(e, form, setForm)}
 						value={form.title}
 						data-vstring="1;256"
 						required
@@ -95,7 +78,7 @@ function Contact() {
 						data-vstring="64;2048"
 						rows={5}
 						name="content"
-						onChange={handleInput}
+						onChange={e => handleInput(e, form, setForm)}
 						value={form.content}
 						placeholder="Votre message ici..."
 						required
@@ -109,11 +92,5 @@ function Contact() {
 		</form>
 	);
 }
-
-/*
-<% if (locals.formData) { %><%= locals.formData.content %><% } %>
-<% if (locals.formData) { %><%= locals.formData.subject %><% } %>
-<% if (locals.formData) { %><%= locals.formData.email %><% } %>
-*/
 
 export default Contact;

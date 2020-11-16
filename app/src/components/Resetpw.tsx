@@ -3,33 +3,14 @@ import { Switch, Route, useRouteMatch, useParams, Redirect } from "react-router-
 import "../main.css";
 import axios from "axios";
 import { createAlertNode, addAlert } from "./utils/alert";
-
-function typeGuardInput(
-	toBeDetermined: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
-): toBeDetermined is React.ChangeEvent<HTMLInputElement> {
-	if ((toBeDetermined as React.ChangeEvent<HTMLInputElement>).type) {
-		return true;
-	}
-	return false;
-}
+import { typeGuardInput } from "./utils/typeGuards";
+import { checkFile, checkFiles, handleInput } from "./utils/inputs";
 
 function Resetpw() {
 	let [form, setForm] = useState<any>({
 		password: "",
 		password2: ""
 	});
-
-	async function handleInput(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
-		let target = e.target;
-		let value: string | boolean = target.value.trim();
-		if (typeGuardInput(e) && target.type === "checkbox") value = e.target.checked;
-		const name = target.name;
-
-		setForm({
-			...form,
-			[name]: value
-		});
-	}
 
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
@@ -62,7 +43,7 @@ function Resetpw() {
 							</label>
 							<input
 								placeholder="**********"
-								onChange={handleInput}
+								onChange={e => handleInput(e, form, setForm)}
 								value={form.password}
 								type="password"
 								id="password"
@@ -81,7 +62,7 @@ function Resetpw() {
 							</label>
 							<input
 								placeholder="**********"
-								onChange={handleInput}
+								onChange={e => handleInput(e, form, setForm)}
 								value={form.password2}
 								type="password"
 								id="password2"

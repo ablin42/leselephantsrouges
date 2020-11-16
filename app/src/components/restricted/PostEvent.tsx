@@ -3,15 +3,13 @@ import axios from "axios";
 
 import "../../main.css";
 import { addAlert, createAlertNode } from "../utils/alert";
+import { checkFile, checkFiles, handleInput } from "../utils/inputs";
 
-function typeGuardInput(
-	toBeDetermined: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
-): toBeDetermined is React.ChangeEvent<HTMLInputElement> {
-	if ((toBeDetermined as React.ChangeEvent<HTMLInputElement>).type) {
-		return true;
-	}
-	return false;
-}
+// async function checkErrors(value: string | boolean) {
+// 	let errMsg = "";
+
+// 	return errMsg;
+// }
 
 function PostEvent() {
 	let [file, setFile] = useState<File | null>(null);
@@ -27,30 +25,18 @@ function PostEvent() {
 		staff: ""
 	});
 
-	// async function checkErrors(value: string | boolean) {
-	// 	let errMsg = "";
-
-	// 	return errMsg;
-	// }
-
-	async function handleInput(e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) {
-		let target = e.target;
-		let value: string | boolean = target.value.trim();
-		if (typeGuardInput(e) && target.type === "checkbox") value = e.target.checked;
-		const name = target.name;
-
-		setForm({
-			...form,
-			[name]: value
-		});
-
-		//validate input
-		//let errorMsg = await checkErrors(value);
-	}
-
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+
 		let formData = new FormData();
+		let fileError = checkFile(file);
+
+		if (fileError) {
+			let alert = createAlertNode(fileError, "error");
+			addAlert(alert, "#alert-wrapper");
+
+			return;
+		}
 
 		if (file) formData.append("img", file);
 		formData.append("title", form.title);
@@ -62,38 +48,16 @@ function PostEvent() {
 		formData.append("staff", form.staff);
 		formData.append("price", form.price);
 
-		// if (files) {
-		// 	let fileExts = ["png", "jpg", "jpeg", "gif"];
-		// 	let maxSize = 25000000;
-
-		// 	const dt = new DataTransfer();
-		// 	for (let i = 0; i < files.length; i++) {
-		// 		const file = files[i];
-
-		// 		let isAllowedExt = fileExts.includes(files[i].name.split(".")[1].toLowerCase());
-		// 		if (isAllowedExt && maxSize > files[i].size) dt.items.add(file);
-
-		// 		// toSend = dt.files;
-		// 		// setFiles(toSend);
-		// 	}
-		// }
-
-		console.log(file, form, formData);
-		// postEvent({ variables: { files: toSend, title: form.title, description: form.description } }).catch(error =>
-		// 	console.log(JSON.stringify(error, null, 2))
-		//);
-
 		axios
 			.post("/api/events/", {
 				body: formData
 			})
 			.then(function (response) {
-				console.log(response);
-				// if (!response.data.error) window.location.href = "/link/" + response.data.urlCode;
-				// else {
-				// 	let alert = createAlertNode(response.data.message, "error");
-				// 	addAlert(alert, "#alert-wrapper");
-				// }
+				if (!response.data.error) window.location.href = "/";
+				else {
+					let alert = createAlertNode(response.data.message, "error");
+					addAlert(alert, "#alert-wrapper");
+				}
 			})
 			.catch(function (error) {
 				let alert = createAlertNode("An error occured while processing your request", "error");
@@ -116,7 +80,7 @@ function PostEvent() {
 						name="title"
 						data-vstring="1;256"
 						required
-						onChange={handleInput}
+						onChange={e => handleInput(e, form, setForm)}
 						value={form.title}
 					/>
 					<span id="i_title" className="form-info">
@@ -129,7 +93,7 @@ function PostEvent() {
 						id="description"
 						name="description"
 						value={form.description}
-						onChange={handleInput}
+						onChange={e => handleInput(e, form, setForm)}
 						data-vstring="1;2048"
 						rows={5}
 						required
@@ -139,10 +103,22 @@ function PostEvent() {
 					</span>
 
 					<label className="control-label">Début de l'événement</label>
-					<input type="datetime-local" id="eventStart" name="eventStart" onChange={handleInput} value={form.eventStart} />
+					<input
+						type="datetime-local"
+						id="eventStart"
+						name="eventStart"
+						onChange={e => handleInput(e, form, setForm)}
+						value={form.eventStart}
+					/>
 
 					<label className="control-label">Fin de l'événement</label>
-					<input type="datetime-local" id="eventEnd" name="eventEnd" onChange={handleInput} value={form.eventEnd} />
+					<input
+						type="datetime-local"
+						id="eventEnd"
+						name="eventEnd"
+						onChange={e => handleInput(e, form, setForm)}
+						value={form.eventEnd}
+					/>
 
 					<label className="control-label">Adresse</label>
 					<input
@@ -151,7 +127,7 @@ function PostEvent() {
 						id="address"
 						name="address"
 						data-vstring="0;512"
-						onChange={handleInput}
+						onChange={e => handleInput(e, form, setForm)}
 						value={form.address}
 					/>
 					<span id="i_address" className="form-info">
@@ -166,7 +142,7 @@ function PostEvent() {
 						id="price"
 						name="price"
 						step=".01"
-						onChange={handleInput}
+						onChange={e => handleInput(e, form, setForm)}
 						value={form.price}
 					/>
 
@@ -176,7 +152,7 @@ function PostEvent() {
 						type="text"
 						id="staff"
 						name="staff"
-						onChange={handleInput}
+						onChange={e => handleInput(e, form, setForm)}
 						value={form.staff}
 					/>
 
@@ -186,7 +162,7 @@ function PostEvent() {
 						type="url"
 						id="url"
 						name="url"
-						onChange={handleInput}
+						onChange={e => handleInput(e, form, setForm)}
 						value={form.url}
 						data-vurl="true"
 					/>
