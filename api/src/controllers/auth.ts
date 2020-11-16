@@ -16,7 +16,7 @@ import Token from "../models/VerificationToken";
 
 const { setUser, notLoggedUser, authUser, authToken } = require("./helpers/middlewares"); //
 import ERROR_MESSAGE from "./helpers/errorMessages";
-require("dotenv").config({ path: '../.env' });
+require("dotenv").config({ path: "../.env" });
 
 const limiter = rateLimit({
 	store: new MongoStore({
@@ -71,6 +71,13 @@ const lostpwlimiter = rateLimit({
 	}
 });
 
+router.get("/", async (req, res) => {
+	let [err, user] = await utils.to(User.find());
+	if (err) throw new Error(ERROR_MESSAGE.serverError);
+	if (!user) throw new Error(ERROR_MESSAGE.invalidCredentials);
+	res.status(200).json(user);
+});
+
 router.post("/register", registerlimiter, vRegister, setUser, notLoggedUser, async (req, res) => {
 	try {
 		let err, result;
@@ -107,10 +114,9 @@ router.post("/register", registerlimiter, vRegister, setUser, notLoggedUser, asy
 // 	session: Session;
 // }
 
-router.post("/login", authlimiter, vLogin, setUser, notLoggedUser, async (req, res) => {
+router.post("/login", vLogin, setUser, notLoggedUser, async (req, res) => {
 	try {
 		req!.session!.formData = { email: req.body.email };
-
 		await utils.checkValidity(req);
 
 		let [err, user] = await utils.to(User.findOne({ email: req.body.email }));
@@ -176,7 +182,7 @@ router.post("/lostpw", vLostPw, setUser, notLoggedUser, async (req, res) => {
 
 		console.log(`Lostpw request token: ${user.email}/${user._id}`);
 		//req.flash("success", ERROR_MESSAGE.lostpwEmail);
-		return res.status(200).json({ error: false });
+		return res.status(200).json({ error: false, message: "Un e-mail a ete en envoye" });
 	} catch (err) {
 		console.log("ERROR LOSTPW:", err, req.headers);
 		return res.status(200).json({ error: true, message: err.message });

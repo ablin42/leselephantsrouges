@@ -22,9 +22,6 @@ aws.config.region = process.env.AWS_REGION;
 
 import Event from "./models/Event";
 
-import { EventType, typeDefs } from "./graphql/schemas/main";
-import { RootQueryType, RootMutationType, resolvers } from "./graphql/resolvers/main";
-
 import ERROR_MESSAGE from "./controllers/helpers/errorMessages";
 import utils from "./controllers/helpers/utils";
 import contactRoute from "./controllers/contact";
@@ -91,28 +88,6 @@ app.use(
 		limit: 25000000
 	})
 );
-
-//make sure password is NEVER returned from user type
-//mongodb transaction when operating on two models at once
-
-let schema = new GraphQLSchema({
-	query: RootQueryType,
-	mutation: RootMutationType
-});
-
-// import upload from "./controllers/helpers/multer";
-
-// app.use(upload);
-
-const server = new ApolloServer({ typeDefs, resolvers });
-server.applyMiddleware({ app });
-// app.use(
-// 	"/graphql",
-// 	graphqlHTTP({
-// 		schema: schema,
-// 		graphiql: true
-// 	})
-// );
 
 interface ResponseError extends Error {
 	status?: number;

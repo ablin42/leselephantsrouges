@@ -27,7 +27,7 @@ const PasswordToken_1 = __importDefault(require("../models/PasswordToken"));
 const VerificationToken_1 = __importDefault(require("../models/VerificationToken"));
 const { setUser, notLoggedUser, authUser, authToken } = require("./helpers/middlewares"); //
 const errorMessages_1 = __importDefault(require("./helpers/errorMessages"));
-require("dotenv").config({ path: '../.env' });
+require("dotenv").config({ path: "../.env" });
 const limiter = express_rate_limit_1.default({
     store: new rate_limit_mongo_1.default({
         uri: process.env.DB_CONNECTION,
@@ -77,6 +77,14 @@ const lostpwlimiter = express_rate_limit_1.default({
         res.status(200).json({ error: true, message: "Too many requests, please try again later" });
     }
 });
+router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let [err, user] = yield utils_1.default.to(User_1.default.find());
+    if (err)
+        throw new Error(errorMessages_1.default.serverError);
+    if (!user)
+        throw new Error(errorMessages_1.default.invalidCredentials);
+    res.status(200).json(user);
+}));
 router.post("/register", registerlimiter, vRegister, setUser, notLoggedUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let err, result;
@@ -109,7 +117,7 @@ router.post("/register", registerlimiter, vRegister, setUser, notLoggedUser, (re
 // interface Request {
 // 	session: Session;
 // }
-router.post("/login", authlimiter, vLogin, setUser, notLoggedUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/login", vLogin, setUser, notLoggedUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         req.session.formData = { email: req.body.email };
         yield utils_1.default.checkValidity(req);
@@ -175,7 +183,7 @@ router.post("/lostpw", vLostPw, setUser, notLoggedUser, (req, res) => __awaiter(
             throw new Error(errorMessages_1.default.sendMail);
         console.log(`Lostpw request token: ${user.email}/${user._id}`);
         //req.flash("success", ERROR_MESSAGE.lostpwEmail);
-        return res.status(200).json({ error: false });
+        return res.status(200).json({ error: false, message: "Un e-mail a ete en envoye" });
     }
     catch (err) {
         console.log("ERROR LOSTPW:", err, req.headers);
