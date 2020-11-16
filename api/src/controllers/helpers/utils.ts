@@ -9,7 +9,7 @@ import User from "../../models/User";
 const { validationResult } = require("express-validator");
 import ERROR_MESSAGE from "./errorMessages";
 import { FileFilterCallback } from "multer";
-require("dotenv").config({ path: '../.env' });
+require("dotenv").config({ path: "../.env" });
 
 const BUCKET = "" + process.env.S3_BUCKET;
 aws.config.region = process.env.AWS_REGION;
@@ -25,7 +25,6 @@ let utils = {
 
 		return false;
 	},
-	// Query<any> | Promise<PaginateResult<any>>
 	to: async function (promise: any) {
 		return promise
 			.then((data: any) => {
@@ -101,17 +100,6 @@ let utils = {
 
 		return;
 	},
-	//  interface Request {
-	//         /** `Multer.File` object populated by `single()` middleware. */
-	//         file: Multer.File;
-	//         /**
-	//          * Array or dictionary of `Multer.File` object populated by `array()`,
-	//          * `fields()`, and `any()` middleware.
-	//          */
-	//         files: {
-	//             [fieldname: string]: Multer.File[];
-	//         } | Multer.File[];
-	//     }
 	parseImgData: async function (files: Array<Express.MulterS3.File>) {
 		let arr: Array<ImageData> = [];
 		files.forEach((file: Express.MulterS3.File) => {

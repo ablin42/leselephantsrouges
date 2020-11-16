@@ -5,10 +5,17 @@ import "../../main.css";
 import { addAlert, createAlertNode } from "../utils/alert";
 import { checkFile, checkFiles, handleInput } from "../utils/inputs";
 
+interface PatchVideoForm {
+	title: string;
+	description: string;
+	url: string;
+	isFiction: boolean;
+	authors: string;
+}
+
 function PatchVideo() {
 	let [file, setFile] = useState<File | null>(null);
-	//any
-	let [form, setForm] = useState<any>({
+	let [form, setForm] = useState<PatchVideoForm>({
 		title: "",
 		description: "",
 		url: "",
@@ -33,9 +40,7 @@ function PatchVideo() {
 		formData.append("description", form.description);
 		formData.append("url", form.url);
 		formData.append("authors", form.authors);
-		formData.append("isFiction", form.isFiction);
-
-		//check img file
+		formData.append("isFiction", form.isFiction.toString());
 
 		axios
 			.post("/api/videos/", {
@@ -128,7 +133,7 @@ function PatchVideo() {
 							type="checkbox"
 							name="isFiction"
 							id="isFiction"
-							value={form.isFiction}
+							checked={form.isFiction}
 							onChange={e => handleInput(e, form, setForm)}
 						/>
 
@@ -193,18 +198,5 @@ function PatchVideoPage() {
 		</>
 	);
 }
-
-/*
-
-<%= locals.video.description %>
-<%= locals.video.url %>
-<%= locals.video.title %>
-<%= locals.video.authors %>
-<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>" />
-<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>" />
-
-
-<% if (locals.video.isFiction == true) { %>checked<% } %>
-*/
 
 export default PatchVideoPage;

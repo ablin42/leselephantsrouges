@@ -1,13 +1,18 @@
 import React, { useState } from "react";
+import axios from "axios";
+
 //import { Switch, Route, useRouteMatch, useParams, Redirect } from "react-router-dom";
 import "../main.css";
-import axios from "axios";
 import { createAlertNode, addAlert } from "./utils/alert";
-import { typeGuardInput } from "./utils/typeGuards";
-import { checkFile, checkFiles, handleInput } from "./utils/inputs";
+import { handleInput } from "./utils/inputs";
+
+interface LoginForm {
+	email: string;
+	password: string;
+}
 
 function Login() {
-	let [form, setForm] = useState<any>({
+	let [form, setForm] = useState<LoginForm>({
 		email: "",
 		password: ""
 	});
@@ -76,8 +81,13 @@ function Login() {
 	);
 }
 
+interface RecoveryForm {
+	email: string;
+	password: string;
+}
+
 function Recovery() {
-	let [form, setForm] = useState<any>({
+	let [form, setForm] = useState<RecoveryForm>({
 		email: "",
 		password: ""
 	});
@@ -149,11 +159,5 @@ function Auth() {
 		</>
 	);
 }
-
-/*
-<% if (locals.formData) { %><%= locals.formData.email %><% } %>
-	<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>" />
-
-*/
 
 export default Auth;

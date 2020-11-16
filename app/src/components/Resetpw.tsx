@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Switch, Route, useRouteMatch, useParams, Redirect } from "react-router-dom";
-import "../main.css";
 import axios from "axios";
+import { Switch, Route, useRouteMatch, useParams, Redirect } from "react-router-dom";
+
+import "../main.css";
 import { createAlertNode, addAlert } from "./utils/alert";
-import { typeGuardInput } from "./utils/typeGuards";
-import { checkFile, checkFiles, handleInput } from "./utils/inputs";
+import { handleInput } from "./utils/inputs";
+
+interface ResetpwForm {
+	password: string;
+	password2: string;
+}
 
 function Resetpw() {
-	let [form, setForm] = useState<any>({
+	let [form, setForm] = useState<ResetpwForm>({
 		password: "",
 		password2: ""
 	});
@@ -83,15 +88,8 @@ function Resetpw() {
 					<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>" />
 				</form>
 			</div>
-
-			<script src="/scripts/core/pwVisibility.js" defer></script>
-			<script src="/scripts/core/validation.js" defer></script>
 		</>
 	);
 }
-
-/*
-
-*/
 
 export default Resetpw;

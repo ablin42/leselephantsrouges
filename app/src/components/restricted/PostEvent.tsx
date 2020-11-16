@@ -3,18 +3,22 @@ import axios from "axios";
 
 import "../../main.css";
 import { addAlert, createAlertNode } from "../utils/alert";
-import { checkFile, checkFiles, handleInput } from "../utils/inputs";
+import { checkFile, handleInput } from "../utils/inputs";
 
-// async function checkErrors(value: string | boolean) {
-// 	let errMsg = "";
-
-// 	return errMsg;
-// }
+interface PostEventForm {
+	title: string;
+	description: string;
+	eventStart: string;
+	eventEnd: string;
+	address: string;
+	url: string;
+	price: string;
+	staff: string;
+}
 
 function PostEvent() {
 	let [file, setFile] = useState<File | null>(null);
-	//any
-	let [form, setForm] = useState<any>({
+	let [form, setForm] = useState<PostEventForm>({
 		title: "",
 		description: "",
 		eventStart: "",

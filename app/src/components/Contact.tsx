@@ -5,8 +5,14 @@ import { createAlertNode, addAlert } from "./utils/alert";
 import { typeGuardInput } from "./utils/typeGuards";
 import { checkFile, checkFiles, handleInput } from "./utils/inputs";
 
+interface ContactForm {
+	email: string;
+	title: string;
+	content: string;
+}
+
 function Contact() {
-	let [form, setForm] = useState<any>({
+	let [form, setForm] = useState<ContactForm>({
 		email: "",
 		title: "",
 		content: ""

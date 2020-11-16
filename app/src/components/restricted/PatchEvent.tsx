@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from "react";
-import "../../main.css";
 import axios from "axios";
+
+import "../../main.css";
 import { createAlertNode, addAlert } from "../utils/alert";
-import { checkFile, checkFiles, handleInput } from "../utils/inputs";
+import { checkFile, handleInput } from "../utils/inputs";
+
+interface PatchEventForm {
+	title: string;
+	description: string;
+	eventStart: string;
+	eventEnd: string;
+	address: string;
+	url: string;
+	price: string;
+	staff: string;
+}
 
 function PatchEvent() {
 	let [file, setFile] = useState<File | null>(null);
-	//any
-	let [form, setForm] = useState<any>({
+	let [form, setForm] = useState<PatchEventForm>({
 		title: "",
 		description: "",
 		eventStart: "",
@@ -232,24 +243,5 @@ function PatchEventPage() {
 		</>
 	);
 }
-
-/* 
-<%= locals.event._id %>
-<%= locals.event.title %>
-<%= locals.event.address %>
-<%= locals.event.description %>
-<%= locals.event.eventStart %>
-<%= locals.event.eventEnd %>
-<%= locals.event.price %>
-<%= locals.event.url %>
-<%= locals.event.staff %>
-
-	<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>" />
-
-
-    <% if (locals.image) { %>
-    <img src="<%= locals.image.path %>" />
-			<% } %>
-*/
 
 export default PatchEventPage;

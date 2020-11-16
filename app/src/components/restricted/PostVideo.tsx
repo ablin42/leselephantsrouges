@@ -3,12 +3,19 @@ import axios from "axios";
 
 import "../../main.css";
 import { addAlert, createAlertNode } from "../utils/alert";
-import { checkFile, checkFiles, handleInput } from "../utils/inputs";
+import { checkFile, handleInput } from "../utils/inputs";
+
+interface PostVideoForm {
+	title: string;
+	description: string;
+	url: string;
+	isFiction: boolean;
+	authors: string;
+}
 
 function PostVideo() {
 	let [file, setFile] = useState<File | null>(null);
-	//any
-	let [form, setForm] = useState<any>({
+	let [form, setForm] = useState<PostVideoForm>({
 		title: "",
 		description: "",
 		url: "",
@@ -33,9 +40,7 @@ function PostVideo() {
 		formData.append("description", form.description);
 		formData.append("url", form.url);
 		formData.append("authors", form.authors);
-		formData.append("isFiction", form.isFiction);
-
-		//check img file
+		formData.append("isFiction", form.isFiction.toString());
 
 		axios
 			.post("/api/videos/", {
@@ -121,7 +126,7 @@ function PostVideo() {
 							type="checkbox"
 							name="isFiction"
 							id="isFiction"
-							value={form.isFiction}
+							checked={form.isFiction}
 							onChange={e => handleInput(e, form, setForm)}
 						/>
 
@@ -152,15 +157,5 @@ function PostVideo() {
 		</>
 	);
 }
-
-/*
-<% if (locals.formData) { %><%= locals.formData.url %><% } %>
-<% if (locals.formData) { %><%= locals.formData.title %><% } %>
-
-<% if (locals.formData) { %><%= locals.formData.description %><% } %>
-<input type="hidden" name="_csrf" value="<%= locals.csrfToken %>" />
-<% if (locals.formData) { %><%= locals.formData.isFiction %><% } %>
-<% if (locals.formData) { %><%= locals.formData.authors %><% } %>
-*/
 
 export default PostVideo;

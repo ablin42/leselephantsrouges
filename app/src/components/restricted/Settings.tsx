@@ -5,8 +5,12 @@ import "../../main.css";
 import { createAlertNode, addAlert } from "../utils/alert";
 import { handleInput } from "../utils/inputs";
 
+interface ChangeEmailForm {
+	email: string;
+}
+
 function ChangeEmail() {
-	let [form, setForm] = useState<any>({
+	let [form, setForm] = useState<ChangeEmailForm>({
 		email: ""
 	});
 
@@ -56,8 +60,14 @@ function ChangeEmail() {
 	);
 }
 
+interface ChangePasswordForm {
+	password: string;
+	password2: string;
+	cpassword: string;
+}
+
 function ChangePassword() {
-	let [form, setForm] = useState<any>({
+	let [form, setForm] = useState<ChangePasswordForm>({
 		password: "",
 		password2: "",
 		cpassword: ""
