@@ -17,20 +17,8 @@ interface EventData {
 	mainImg: string;
 }
 
-function SingleEvent({ event }: any) {
-	const [isLogged, setLogged] = useState(false);
-
-	useEffect(() => {
-		(async function () {
-			try {
-				const response = await axios.get("/api/auth/isLogged");
-
-				if (!response.data.error && response.data.isLogged) setLogged(true);
-			} catch (err) {
-				console.log("ERROR ASKING BACKEND ABOUT SESSION");
-			}
-		})();
-	}, []);
+function SingleEvent({ event, isLogged }: any) {
+	//any
 
 	const renderEditBtn = () => {
 		if (isLogged) {
@@ -88,7 +76,8 @@ function SingleEvent({ event }: any) {
 	);
 }
 
-function Event() {
+function Event({ isLogged }: any) {
+	//any
 	let [data, setData] = useState<Array<EventData>>([]);
 	const [loadState, setLoad] = useState<string>("Loading...");
 
@@ -119,7 +108,7 @@ function Event() {
 			<h1>event renders</h1>
 
 			{data.map(event => {
-				return <SingleEvent key={event._id} event={event}></SingleEvent>;
+				return <SingleEvent isLogged={isLogged} key={event._id} event={event}></SingleEvent>;
 			})}
 		</>
 	);

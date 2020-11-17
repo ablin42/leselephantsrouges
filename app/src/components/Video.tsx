@@ -14,21 +14,8 @@ interface VideoData {
 	mainImg: string;
 }
 
-function SingleVideo({ video }: any) {
-	const [isLogged, setLogged] = useState(false);
-
-	useEffect(() => {
-		(async function () {
-			try {
-				const response = await axios.get("/api/auth/isLogged");
-
-				if (!response.data.error && response.data.isLogged) setLogged(true);
-			} catch (err) {
-				console.log("ERROR ASKING BACKEND ABOUT SESSION");
-			}
-		})();
-	}, []);
-
+function SingleVideo({ video, isLogged }: any) {
+	//any
 	const renderEditBtn = () => {
 		if (isLogged) {
 			return (
@@ -76,7 +63,8 @@ function SingleVideo({ video }: any) {
 	);
 }
 
-function Videos() {
+function Videos({ isLogged }: any) {
+	//any
 	let [data, setData] = useState<Array<VideoData>>([]);
 	const [loadState, setLoad] = useState<string>("Loading...");
 
@@ -107,7 +95,7 @@ function Videos() {
 			<h1>vid renders</h1>
 
 			{data.map(video => {
-				return <SingleVideo key={video._id} video={video}></SingleVideo>;
+				return <SingleVideo isLogged={isLogged} key={video._id} video={video}></SingleVideo>;
 			})}
 		</>
 	);

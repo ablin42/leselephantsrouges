@@ -90,9 +90,9 @@ function App() {
 					<Route exact path="/">
 						<Contact></Contact>
 						<hr />
-						<Event></Event>
+						<Event isLogged={isLogged}></Event>
 						<hr />
-						<Video></Video>
+						<Video isLogged={isLogged}></Video>
 					</Route>
 
 					<Route component={NotFound} />
