@@ -18,7 +18,6 @@ const Image_1 = __importDefault(require("../../models/Image"));
 exports.default = {
     fetchMainImg: function (events) {
         return __awaiter(this, void 0, void 0, function* () {
-            // needs event interface
             let arr = [];
             for (let i = 0; i < events.length; i++) {
                 let obj = {
@@ -36,14 +35,14 @@ exports.default = {
                     address: events[i].address,
                     createdAt: events[i].createdAt,
                     updatedAt: events[i].updatedAt,
-                    imgPath: undefined,
+                    mainImg: undefined,
                     __v: events[i].__v
                 };
                 let [err, img] = yield utils_1.default.to(Image_1.default.findOne({ _itemId: events[i]._id, itemType: "event" }));
                 if (err)
                     throw new Error(errorMessages_1.default.fetchImg);
                 if (img)
-                    obj.imgPath = img.path;
+                    obj.mainImg = img.path;
                 arr.push(obj);
             }
             return arr;

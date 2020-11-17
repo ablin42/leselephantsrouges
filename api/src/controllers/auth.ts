@@ -71,11 +71,14 @@ const lostpwlimiter = rateLimit({
 	}
 });
 
-router.get("/", async (req, res) => {
-	let [err, user] = await utils.to(User.find());
-	if (err) throw new Error(ERROR_MESSAGE.serverError);
-	if (!user) throw new Error(ERROR_MESSAGE.invalidCredentials);
-	res.status(200).json(user);
+router.get("/isLogged", setUser, async (req, res) => {
+	try {
+		if (req.user) return res.status(200).json({ error: false, isLogged: true });
+		return res.status(200).json({ error: false, isLogged: false });
+	} catch (err) {
+		console.log("ERROR CHECKING LOG STATE:", err, req.headers);
+		return res.status(200).json({ error: true, message: err.message });
+	}
 });
 
 router.post("/register", registerlimiter, vRegister, setUser, notLoggedUser, async (req, res) => {
@@ -104,15 +107,6 @@ router.post("/register", registerlimiter, vRegister, setUser, notLoggedUser, asy
 		return res.status(200).json({ error: true, message: err.message });
 	}
 });
-
-// interface Session {
-// 	formData?: object;
-// 	_id?: string;
-// }
-
-// interface Request {
-// 	session: Session;
-// }
 
 router.post("/login", vLogin, setUser, notLoggedUser, async (req, res) => {
 	try {

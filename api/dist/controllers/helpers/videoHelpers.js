@@ -18,7 +18,6 @@ const Image_1 = __importDefault(require("../../models/Image"));
 exports.default = {
     fetchMainImg: function (videos) {
         return __awaiter(this, void 0, void 0, function* () {
-            // need video event
             let arr = [];
             for (let i = 0; i < videos.length; i++) {
                 let obj = {

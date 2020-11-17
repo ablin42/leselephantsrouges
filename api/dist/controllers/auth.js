@@ -77,13 +77,16 @@ const lostpwlimiter = express_rate_limit_1.default({
         res.status(200).json({ error: true, message: "Too many requests, please try again later" });
     }
 });
-router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let [err, user] = yield utils_1.default.to(User_1.default.find());
-    if (err)
-        throw new Error(errorMessages_1.default.serverError);
-    if (!user)
-        throw new Error(errorMessages_1.default.invalidCredentials);
-    res.status(200).json(user);
+router.get("/isLogged", setUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (req.user)
+            return res.status(200).json({ error: false, isLogged: true });
+        return res.status(200).json({ error: false, isLogged: false });
+    }
+    catch (err) {
+        console.log("ERROR CHECKING LOG STATE:", err, req.headers);
+        return res.status(200).json({ error: true, message: err.message });
+    }
 }));
 router.post("/register", registerlimiter, vRegister, setUser, notLoggedUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -110,13 +113,6 @@ router.post("/register", registerlimiter, vRegister, setUser, notLoggedUser, (re
         return res.status(200).json({ error: true, message: err.message });
     }
 }));
-// interface Session {
-// 	formData?: object;
-// 	_id?: string;
-// }
-// interface Request {
-// 	session: Session;
-// }
 router.post("/login", vLogin, setUser, notLoggedUser, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         req.session.formData = { email: req.body.email };

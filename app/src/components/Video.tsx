@@ -15,15 +15,41 @@ interface VideoData {
 }
 
 function SingleVideo({ video }: any) {
+	const [isLogged, setLogged] = useState(false);
+
+	useEffect(() => {
+		(async function () {
+			try {
+				const response = await axios.get("/api/auth/isLogged");
+
+				if (!response.data.error && response.data.isLogged) setLogged(true);
+			} catch (err) {
+				console.log("ERROR ASKING BACKEND ABOUT SESSION");
+			}
+		})();
+	}, []);
+
+	const renderEditBtn = () => {
+		if (isLogged) {
+			return (
+				<a href={`/Admin/Videos/Patch/${video._id}`}>
+					<i className="fas fa-edit"></i>
+				</a>
+			);
+		} else return;
+	};
+
+	const renderImg = () => {
+		if (video.mainImg) {
+			return <img src={video.mainImg} />;
+		} else return;
+	};
+
 	return (
 		<div id={video._id}>
 			<h1>
 				{video.title}
-				{/* //if (locals.user && locals.user.role === "admin") { */}
-				<a href={`/Admin/Videos/Patch/${video._id}`}>
-					<i className="fas fa-edit"></i>
-				</a>
-				{/* } */}
+				{renderEditBtn()}
 			</h1>
 			<br />
 			<p>{video.description}</p>
@@ -45,7 +71,7 @@ function SingleVideo({ video }: any) {
 				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 				allowFullScreen
 			></iframe>
-			<img src={video.mainImg} />
+			{renderImg()}
 		</div>
 	);
 }

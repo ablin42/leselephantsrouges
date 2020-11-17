@@ -1,6 +1,7 @@
 import "./main.css";
-import React, { Component } from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Switch, Route, Redirect, RouteComponentProps } from "react-router-dom";
+import axios from "axios";
 
 import Contact from "./components/Contact";
 import Resetpw from "./components/Resetpw";
@@ -15,67 +16,100 @@ import PostVideo from "./components/restricted/PostVideo";
 import Auth from "./components/Auth";
 import NotFound from "./components/NotFound";
 
-class App extends Component {
-	render() {
-		return (
-			<Router>
-				<div id="alert-wrapper"></div>
-				<div className="container">
-					<Switch>
-						<Route exact path="/Admin">
-							<Admin></Admin>
-						</Route>
+// interface MatchParams {
+// 	name: string;
+// }
 
-						<Route exact path="/Settings">
-							<Settings></Settings>
-						</Route>
+interface Protected {
+	//extends RouteComponentProps<MatchParams>
+	isEnabled: boolean;
+	exact?: boolean;
+	children?: any;
+	path: string;
+}
 
-						<Route exact path="/PostVideo">
-							<PostVideo></PostVideo>
-						</Route>
+const ProtectedRoute = ({ isEnabled, children, ...props }: Protected) => {
+	return isEnabled ? <Route {...props}>{children}</Route> : <Redirect to="/auth" />;
+};
 
-						<Route exact path="/PostEvent">
-							<PostEvent></PostEvent>
-						</Route>
+function App() {
+	const [isLogged, setLogged] = useState(false);
+	const [hadResponse, setResponse] = useState(false);
 
-						<Route path="/PatchVideo">
-							<PatchVideo></PatchVideo>
-						</Route>
+	useEffect(() => {
+		(async function () {
+			try {
+				const response = await axios.get("/api/auth/isLogged");
 
-						<Route path="/PatchEvent">
-							<PatchEvent></PatchEvent>
-						</Route>
+				if (!response.data.error && response.data.isLogged) setLogged(true);
+				setResponse(true);
+			} catch (err) {
+				setResponse(true);
+				console.log("ERROR ASKING BACKEND ABOUT SESSION");
+			}
+		})();
+	}, []);
 
-						<Route path="/auth/">
-							<Auth></Auth>
-						</Route>
+	return hadResponse ? (
+		<Router>
+			<div id="alert-wrapper"></div>
+			<div className="container">
+				<Switch>
+					<ProtectedRoute exact path="/Admin" isEnabled={isLogged}>
+						<Admin></Admin>
+					</ProtectedRoute>
 
-						<Route exact path="/reset-password">
-							<Resetpw></Resetpw>
-						</Route>
+					<ProtectedRoute exact path="/Settings" isEnabled={isLogged}>
+						<Settings></Settings>
+					</ProtectedRoute>
 
-						<Route exact path="/">
-							<Contact></Contact>
-							<hr />
-							<Event></Event>
-							<hr />
-							<Video></Video>
-						</Route>
+					<ProtectedRoute exact path="/Video/Post" isEnabled={isLogged}>
+						<PostVideo></PostVideo>
+					</ProtectedRoute>
 
-						<Route component={NotFound} />
-					</Switch>
-				</div>
+					<ProtectedRoute path="/Event/Post" isEnabled={isLogged}>
+						<PostEvent></PostEvent>
+					</ProtectedRoute>
 
-				<footer className="invert">
-					<p className="footer-text">
-						<a rel="noopener noreferrer" target="_blank" href="https://www.ablin.dev">
-							@ablin42
-						</a>
-					</p>
-				</footer>
-			</Router>
-		);
-	}
+					<ProtectedRoute exact path="/Video/Patch" isEnabled={isLogged}>
+						<PatchVideo></PatchVideo>
+					</ProtectedRoute>
+
+					<ProtectedRoute path="/Event/Patch" isEnabled={isLogged}>
+						<PatchEvent></PatchEvent>
+					</ProtectedRoute>
+
+					<Route path="/auth/">
+						<Auth></Auth>
+					</Route>
+
+					<Route exact path="/reset-password">
+						<Resetpw></Resetpw>
+					</Route>
+
+					<Route exact path="/">
+						<Contact></Contact>
+						<hr />
+						<Event></Event>
+						<hr />
+						<Video></Video>
+					</Route>
+
+					<Route component={NotFound} />
+				</Switch>
+			</div>
+
+			<footer className="invert">
+				<p className="footer-text">
+					<a rel="noopener noreferrer" target="_blank" href="https://www.ablin.dev">
+						@ablin42
+					</a>
+				</p>
+			</footer>
+		</Router>
+	) : (
+		<>"Loading..."</>
+	);
 }
 
 export default App;

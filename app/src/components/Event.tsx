@@ -18,15 +18,56 @@ interface EventData {
 }
 
 function SingleEvent({ event }: any) {
+	const [isLogged, setLogged] = useState(false);
+
+	useEffect(() => {
+		(async function () {
+			try {
+				const response = await axios.get("/api/auth/isLogged");
+
+				if (!response.data.error && response.data.isLogged) setLogged(true);
+			} catch (err) {
+				console.log("ERROR ASKING BACKEND ABOUT SESSION");
+			}
+		})();
+	}, []);
+
+	const renderEditBtn = () => {
+		if (isLogged) {
+			return (
+				<a href={`/Admin/Events/Patch/${event._id}`}>
+					<i className="fas fa-edit"></i>
+				</a>
+			);
+		} else return;
+	};
+
+	const renderFrame = () => {
+		if (event.url) {
+			return (
+				<iframe
+					width="560"
+					height="315"
+					src={event.url}
+					frameBorder="0"
+					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+					allowFullScreen
+				></iframe>
+			);
+		} else return;
+	};
+
+	const renderImg = () => {
+		if (event.mainImg) {
+			return <img src={event.mainImg} />;
+		} else return;
+	};
+
 	return (
 		<div id={event._id}>
 			<h1>
 				{event.title}
-				{/* //if (locals.user && locals.user.role === "admin") { */}
-				<a href={`/Admin/Events/Patch/${event._id}`}>
-					<i className="fas fa-edit"></i>
-				</a>
-				{/* } */}
+				{renderEditBtn()}
 			</h1>
 			<br />
 			<p>{event.description}</p>
@@ -41,17 +82,8 @@ function SingleEvent({ event }: any) {
 				return author;
 			})}
 			<br />
-			{/* <% if (locals.events[index].url) { %> */}
-			<iframe
-				width="560"
-				height="315"
-				src={event.url}
-				frameBorder="0"
-				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-				allowFullScreen
-			></iframe>
-			{/* <% } %> <% if (locals.events[index].imgPath) { %> */}
-			<img src={event.mainImg} />
+			{renderFrame()}
+			{renderImg()}
 		</div>
 	);
 }
@@ -66,7 +98,6 @@ function Event() {
 				let url = "/api/events/";
 				const response = await axios.get(url);
 
-				console.log(response.data.events);
 				if (!response.data.error) setData(response.data.events);
 				else {
 					let alert = createAlertNode(response.data.message, "error");

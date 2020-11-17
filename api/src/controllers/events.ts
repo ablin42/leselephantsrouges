@@ -16,7 +16,7 @@ aws.config.region = process.env.AWS_REGION;
 const BUCKET = "" + process.env.S3_BUCKET;
 require("dotenv").config({ path: "../.env" });
 
-router.get("/", async (req, res) => {
+router.get("/", setUser, async (req, res) => {
 	try {
 		const options = {
 			page: parseInt(req.query.page as string, 10) || 1,

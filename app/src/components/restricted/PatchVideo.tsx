@@ -239,8 +239,6 @@ function WrapVideoComponents() {
 	);
 }
 
-//useEffect(() => {}, [form]);
-
 function PatchVideoPage() {
 	let match = useRouteMatch();
 
