@@ -39,7 +39,17 @@ router.get("/", async (req, res) => {
 	}
 });
 
-router.post("/", upload, errorHandler, vEvent, setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
+router.get("/:id", setEvent, async (req, res) => {
+	try {
+		return res.status(200).json({ error: false, event: req.event });
+	} catch (err) {
+		console.log("ERROR ACCESSING EVENT:", err, req.headers);
+		return res.status(200).json({ error: true, message: err.message });
+	}
+});
+
+//setUser, authUser, authRole(ROLE.ADMIN),
+router.post("/", upload, errorHandler, vEvent, async (req, res) => {
 	try {
 		await utils.checkValidity(req);
 		const obj = {
@@ -50,12 +60,11 @@ router.post("/", upload, errorHandler, vEvent, setUser, authUser, authRole(ROLE.
 			address: req.body.address,
 			price: req.body.price,
 			staff: await utils.parseAuthors(req.body.staff),
-			url: ""
+			url: req.body.url,
+			parsedUrl: await utils.parseUrl(req.body.url)
 		};
 		let imgData;
 		const files = req.files as Express.MulterS3.File[];
-
-		if (req.body.url) obj.url = await utils.parseUrl(req.body.url);
 		if (req.files.length > 0) imgData = await utils.parseImgData(files);
 
 		let newEvent = new Event(obj);
@@ -75,7 +84,8 @@ router.post("/", upload, errorHandler, vEvent, setUser, authUser, authRole(ROLE.
 	}
 });
 
-router.post("/:id", upload, errorHandler, vEvent, setEvent, setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
+//setUser, authUser, authRole(ROLE.ADMIN),
+router.post("/:id", upload, errorHandler, vEvent, setEvent, async (req, res) => {
 	try {
 		await utils.checkValidity(req);
 		const id = sanitize(req.params.id);
@@ -87,12 +97,11 @@ router.post("/:id", upload, errorHandler, vEvent, setEvent, setUser, authUser, a
 			address: req.body.address,
 			price: req.body.price,
 			staff: await utils.parseAuthors(req.body.staff),
-			url: ""
+			url: req.body.url,
+			parsedUrl: await utils.parseUrl(req.body.url)
 		};
 		let imgData;
 		const files = req.files as Express.MulterS3.File[];
-
-		if (req.body.url) obj.url = await utils.parseUrl(req.body.url);
 		if (req.files.length > 0) imgData = await utils.parseImgData(files);
 
 		let [err, result] = await utils.to(Event.updateOne({ _id: id }, { $set: obj }));

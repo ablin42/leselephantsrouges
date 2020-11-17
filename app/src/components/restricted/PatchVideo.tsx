@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Switch, Route, useRouteMatch, useParams, Redirect } from "react-router-dom";
 import axios from "axios";
 
 import "../../main.css";
 import { addAlert, createAlertNode } from "../utils/alert";
-import { checkFile, checkFiles, handleInput } from "../utils/inputs";
+import { checkFile, handleInput } from "../utils/inputs";
 
 interface PatchVideoForm {
 	title: string;
@@ -11,31 +12,34 @@ interface PatchVideoForm {
 	url: string;
 	isFiction: boolean;
 	authors: string;
+	mainImg: string;
 }
 
-function PatchVideo() {
+interface UrlType {
+	id: string;
+}
+
+function PatchVideo({ data }: any) {
+	//any
+	const { id } = useParams<UrlType>();
 	let [file, setFile] = useState<File | null>(null);
-	let [form, setForm] = useState<PatchVideoForm>({
-		title: "",
-		description: "",
-		url: "",
-		isFiction: false,
-		authors: ""
-	});
+	let [form, setForm] = useState<PatchVideoForm>(data);
 
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		let formData = new FormData();
-		let fileError = checkFile(file);
+		if (file) {
+			let fileError = checkFile(file);
 
-		if (fileError) {
-			let alert = createAlertNode(fileError, "error");
-			addAlert(alert, "#alert-wrapper");
+			if (fileError) {
+				let alert = createAlertNode(fileError, "error");
+				addAlert(alert, "#alert-wrapper");
 
-			return;
+				return;
+			}
+
+			formData.append("img", file);
 		}
-
-		if (file) formData.append("img", file);
 		formData.append("title", form.title);
 		formData.append("description", form.description);
 		formData.append("url", form.url);
@@ -43,10 +47,7 @@ function PatchVideo() {
 		formData.append("isFiction", form.isFiction.toString());
 
 		axios
-			.post("/api/videos/", {
-				//video/id
-				body: formData
-			})
+			.post(`/api/videos/${id}`, formData)
 			.then(function (response) {
 				if (!response.data.error) window.location.href = "/";
 				else {
@@ -69,9 +70,9 @@ function PatchVideo() {
 					className="col-md-6 offset-md-3 text-center"
 					id="videopatch"
 					method="POST"
-					data-videoid="<%= locals.video._id %>"
+					data-videoid={id}
 					onSubmit={handleSubmit}
-					action="/api/videos/<%= locals.video._id %>"
+					action={`/api/videos/${id}`}
 				>
 					<div className="row">
 						<label className="control-label">Lien youtube</label>
@@ -137,7 +138,7 @@ function PatchVideo() {
 							onChange={e => handleInput(e, form, setForm)}
 						/>
 
-						{/* <img src="<%= locals.image.path %>" /> */}
+						<img src={form.mainImg} />
 						{/* <div className="form-group text-center">
 							<label htmlFor="img" id="imglabel" className="filebtn">
 								Choisir des images
@@ -148,7 +149,6 @@ function PatchVideo() {
 						<input
 							name={"document"}
 							type={"file"}
-							multiple
 							onChange={({ target: { files } }) => {
 								if (files && files[0]) setFile(files[0]);
 							}}
@@ -163,11 +163,13 @@ function PatchVideo() {
 }
 
 function DelVideo() {
+	const { id } = useParams<UrlType>();
+
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 
 		axios
-			.post("/api/videos/delete/") //delete/id
+			.post(`/api/videos/delete/${id}`)
 			.then(function (response) {
 				let alertType = "error";
 				if (!response.data.error) alertType = "success";
@@ -182,20 +184,78 @@ function DelVideo() {
 	}
 
 	return (
-		<form className="mt-3" method="POST" action="/api/videos/delete/<%= locals.video._id %>" onSubmit={handleSubmit}>
+		<form method="POST" action={`/api/videos/delete/${id}`} onSubmit={handleSubmit}>
 			<input type="submit" className="delbtn" value="SUPPRIMER DEFINITIVEMENT" id="delete-video" />
 		</form>
 	);
 }
 
-function PatchVideoPage() {
-	return (
+function WrapVideoComponents() {
+	const { id } = useParams<UrlType>();
+	const [data, setData] = useState<PatchVideoForm>({
+		title: "",
+		description: "",
+		url: "",
+		isFiction: false,
+		authors: "",
+		mainImg: ""
+	});
+	const [loadState, setLoad] = useState<string>("Loading...");
+
+	useEffect(() => {
+		(async function () {
+			try {
+				let url = "/api/videos/" + id;
+				const response = await axios.get(url);
+
+				if (!response.data.error) setData(response.data.video);
+				else {
+					let alert = createAlertNode(response.data.message, "error");
+					addAlert(alert, "#alert-wrapper");
+
+					setLoad("This video does not exist");
+				}
+			} catch (err) {
+				let alert = createAlertNode("An error occured while fetching this video", "error");
+				addAlert(alert, "#alert-wrapper");
+
+				setLoad("This video does not exist");
+			}
+		})();
+	}, [id]);
+
+	return data.title.length ? (
 		<>
-			<PatchVideo></PatchVideo>
+			{/* <Shortened id={state._id} longUrl={state.longUrl} shortUrl={state.shortUrl} /> */}
+			<PatchVideo data={data}></PatchVideo>
 			<DelVideo></DelVideo>
-			<script src="/scripts/core/validation.js" defer></script>
-			<script src="/scripts/submitVideo.js" defer></script>
 		</>
+	) : (
+		<div className="hero-text">
+			<h1>{loadState}</h1>
+			<h2>Press this button to go home</h2>
+			{/* <HomeBtn></HomeBtn> */}
+		</div>
+	);
+}
+
+//useEffect(() => {}, [form]);
+
+function PatchVideoPage() {
+	let match = useRouteMatch();
+
+	return (
+		<Switch>
+			<Route exact path={`${match.url}/:id`}>
+				<>
+					{/* <PatchVideo></PatchVideo>
+					<DelVideo></DelVideo> */}
+					<WrapVideoComponents></WrapVideoComponents>
+				</>
+			</Route>
+			<Route path={match.path}>404</Route>
+			{/* not found */}
+		</Switch>
 	);
 }
 

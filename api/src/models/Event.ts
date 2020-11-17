@@ -6,6 +6,9 @@ const eventSchema = new mongoose.Schema(
 		url: {
 			type: String
 		},
+		parseUrl: {
+			type: String
+		},
 		address: {
 			type: String
 		},

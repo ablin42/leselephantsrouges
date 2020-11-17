@@ -49,7 +49,17 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.status(200).json({ error: true, message: err.message });
     }
 }));
-router.post("/", multer_1.default, errorHandler, vEvent, setUser, authUser, authRole(ROLE.ADMIN), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/:id", setEvent, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        return res.status(200).json({ error: false, event: req.event });
+    }
+    catch (err) {
+        console.log("ERROR ACCESSING EVENT:", err, req.headers);
+        return res.status(200).json({ error: true, message: err.message });
+    }
+}));
+//setUser, authUser, authRole(ROLE.ADMIN),
+router.post("/", multer_1.default, errorHandler, vEvent, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield utils_1.default.checkValidity(req);
         const obj = {
@@ -60,12 +70,11 @@ router.post("/", multer_1.default, errorHandler, vEvent, setUser, authUser, auth
             address: req.body.address,
             price: req.body.price,
             staff: yield utils_1.default.parseAuthors(req.body.staff),
-            url: ""
+            url: req.body.url,
+            parsedUrl: yield utils_1.default.parseUrl(req.body.url)
         };
         let imgData;
         const files = req.files;
-        if (req.body.url)
-            obj.url = yield utils_1.default.parseUrl(req.body.url);
         if (req.files.length > 0)
             imgData = yield utils_1.default.parseImgData(files);
         let newEvent = new Event_1.default(obj);
@@ -85,10 +94,12 @@ router.post("/", multer_1.default, errorHandler, vEvent, setUser, authUser, auth
         return res.status(200).json({ error: true, message: err.message });
     }
 }));
-router.post("/:id", multer_1.default, errorHandler, vEvent, setEvent, setUser, authUser, authRole(ROLE.ADMIN), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+//setUser, authUser, authRole(ROLE.ADMIN),
+router.post("/:id", multer_1.default, errorHandler, vEvent, setEvent, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield utils_1.default.checkValidity(req);
         const id = mongo_sanitize_1.default(req.params.id);
+        console.log(req.body);
         const obj = {
             title: req.body.title,
             description: req.body.description,
@@ -97,12 +108,11 @@ router.post("/:id", multer_1.default, errorHandler, vEvent, setEvent, setUser, a
             address: req.body.address,
             price: req.body.price,
             staff: yield utils_1.default.parseAuthors(req.body.staff),
-            url: ""
+            url: req.body.url,
+            parsedUrl: yield utils_1.default.parseUrl(req.body.url)
         };
         let imgData;
         const files = req.files;
-        if (req.body.url)
-            obj.url = yield utils_1.default.parseUrl(req.body.url);
         if (req.files.length > 0)
             imgData = yield utils_1.default.parseImgData(files);
         let [err, result] = yield utils_1.default.to(Event_1.default.updateOne({ _id: id }, { $set: obj }));

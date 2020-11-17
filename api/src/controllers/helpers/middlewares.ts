@@ -1,6 +1,6 @@
 import sanitize from "mongo-sanitize";
 import express, { Request, Response, NextFunction } from "express";
-require("dotenv").config({ path: '../.env' });
+require("dotenv").config({ path: "../.env" });
 
 import utils from "./utils";
 import User from "../../models/User";
@@ -66,46 +66,45 @@ function authToken(req: Request, res: Response, next: NextFunction) {
 }
 
 async function setVideo(req: Request, res: Response, next: NextFunction) {
-	const id = sanitize(req.params.id);
-	let err, video, img;
+	try {
+		const id = sanitize(req.params.id);
+		let err, video, img;
 
-	[err, video] = await utils.to(Video.findById(id));
-	if (err || !video) {
-		if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
-			//req.flash("warning", ERROR_MESSAGE.noResult);
-			return res.status(404).redirect("/Admin");
-		}
-		return res.status(200).json({ url: "/Admin", message: ERROR_MESSAGE.noResult, err: true });
+		[err, video] = await utils.to(Video.findById(id));
+		if (err || !video) throw new Error(ERROR_MESSAGE.noResult);
+
+		req.video = JSON.parse(JSON.stringify(video));
+
+		[err, img] = await utils.to(Image.findOne({ itemType: "cover", _itemId: video._id }));
+		if (err) throw new Error(ERROR_MESSAGE.fetchImg);
+		if (!img) throw new Error(ERROR_MESSAGE.noResult); //img seems mandatory here
+		req!.video!.mainImg = img.path;
+
+		next();
+	} catch (err) {
+		return res.status(200).json({ error: true, message: err.message });
 	}
-	req.video = JSON.parse(JSON.stringify(video));
-
-	[err, img] = await utils.to(Image.findOne({ itemType: "cover", _itemId: video._id }));
-	if (err) throw new Error(ERROR_MESSAGE.fetchImg);
-	if (!img) throw new Error(ERROR_MESSAGE.noResult);
-	req!.video!.mainImg = img.path;
-
-	next();
 }
 
 async function setEvent(req: Request, res: Response, next: NextFunction) {
-	const id = sanitize(req.params.id);
-	let err, event, img;
+	try {
+		const id = sanitize(req.params.id);
+		let err, event, img;
 
-	[err, event] = await utils.to(Event.findById(id));
-	if (err || !event) {
-		if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
-			//req.flash("warning", ERROR_MESSAGE.noResult);
-			return res.status(404).redirect("/Admin");
-		}
-		return res.status(200).json({ url: "/Admin", message: ERROR_MESSAGE.noResult, err: true });
+		[err, event] = await utils.to(Event.findById(id));
+		if (err || !event) throw new Error(ERROR_MESSAGE.noResult);
+
+		req.event = JSON.parse(JSON.stringify(event));
+
+		[err, img] = await utils.to(Image.findOne({ itemType: "event", _itemId: event._id }));
+		if (err) throw new Error(ERROR_MESSAGE.fetchImg);
+		if (!img) throw new Error(ERROR_MESSAGE.noResult); //img seems mandatory here
+		req!.event!.mainImg = img.path;
+
+		next();
+	} catch (err) {
+		return res.status(200).json({ error: true, message: err.message });
 	}
-	req.event = JSON.parse(JSON.stringify(event));
-
-	[err, img] = await utils.to(Image.findOne({ itemType: "event", _itemId: event._id }));
-	if (err) throw new Error(ERROR_MESSAGE.fetchImg);
-	if (img) req!.event!.mainImg = img.path;
-
-	next();
 }
 
 function errorHandler(err: ErrorEvent, req: Request, res: Response, next: NextFunction) {

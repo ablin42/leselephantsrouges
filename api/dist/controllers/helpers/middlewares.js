@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongo_sanitize_1 = __importDefault(require("mongo-sanitize"));
-require("dotenv").config({ path: '../.env' });
+require("dotenv").config({ path: "../.env" });
 const utils_1 = __importDefault(require("./utils"));
 const User_1 = __importDefault(require("../../models/User"));
 const Video_1 = __importDefault(require("../../models/Video"));
@@ -71,45 +71,46 @@ function authToken(req, res, next) {
 }
 function setVideo(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const id = mongo_sanitize_1.default(req.params.id);
-        let err, video, img;
-        [err, video] = yield utils_1.default.to(Video_1.default.findById(id));
-        if (err || !video) {
-            if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
-                //req.flash("warning", ERROR_MESSAGE.noResult);
-                return res.status(404).redirect("/Admin");
-            }
-            return res.status(200).json({ url: "/Admin", message: errorMessages_1.default.noResult, err: true });
+        try {
+            const id = mongo_sanitize_1.default(req.params.id);
+            let err, video, img;
+            [err, video] = yield utils_1.default.to(Video_1.default.findById(id));
+            if (err || !video)
+                throw new Error(errorMessages_1.default.noResult);
+            req.video = JSON.parse(JSON.stringify(video));
+            [err, img] = yield utils_1.default.to(Image_1.default.findOne({ itemType: "cover", _itemId: video._id }));
+            if (err)
+                throw new Error(errorMessages_1.default.fetchImg);
+            if (!img)
+                throw new Error(errorMessages_1.default.noResult); //img seems mandatory here
+            req.video.mainImg = img.path;
+            next();
         }
-        req.video = JSON.parse(JSON.stringify(video));
-        [err, img] = yield utils_1.default.to(Image_1.default.findOne({ itemType: "cover", _itemId: video._id }));
-        if (err)
-            throw new Error(errorMessages_1.default.fetchImg);
-        if (!img)
-            throw new Error(errorMessages_1.default.noResult);
-        req.video.mainImg = img.path;
-        next();
+        catch (err) {
+            return res.status(200).json({ error: true, message: err.message });
+        }
     });
 }
 function setEvent(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const id = mongo_sanitize_1.default(req.params.id);
-        let err, event, img;
-        [err, event] = yield utils_1.default.to(Event_1.default.findById(id));
-        if (err || !event) {
-            if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
-                //req.flash("warning", ERROR_MESSAGE.noResult);
-                return res.status(404).redirect("/Admin");
-            }
-            return res.status(200).json({ url: "/Admin", message: errorMessages_1.default.noResult, err: true });
-        }
-        req.event = JSON.parse(JSON.stringify(event));
-        [err, img] = yield utils_1.default.to(Image_1.default.findOne({ itemType: "event", _itemId: event._id }));
-        if (err)
-            throw new Error(errorMessages_1.default.fetchImg);
-        if (img)
+        try {
+            const id = mongo_sanitize_1.default(req.params.id);
+            let err, event, img;
+            [err, event] = yield utils_1.default.to(Event_1.default.findById(id));
+            if (err || !event)
+                throw new Error(errorMessages_1.default.noResult);
+            req.event = JSON.parse(JSON.stringify(event));
+            [err, img] = yield utils_1.default.to(Image_1.default.findOne({ itemType: "event", _itemId: event._id }));
+            if (err)
+                throw new Error(errorMessages_1.default.fetchImg);
+            if (!img)
+                throw new Error(errorMessages_1.default.noResult); //img seems mandatory here
             req.event.mainImg = img.path;
-        next();
+            next();
+        }
+        catch (err) {
+            return res.status(200).json({ error: true, message: err.message });
+        }
     });
 }
 function errorHandler(err, req, res, next) {

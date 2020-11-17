@@ -19,7 +19,7 @@ const Image_1 = __importDefault(require("../../models/Image"));
 const User_1 = __importDefault(require("../../models/User"));
 const { validationResult } = require("express-validator");
 const errorMessages_1 = __importDefault(require("./errorMessages"));
-require("dotenv").config({ path: '../.env' });
+require("dotenv").config({ path: "../.env" });
 const BUCKET = "" + process.env.S3_BUCKET;
 aws_sdk_1.default.config.region = process.env.AWS_REGION;
 let utils = {
@@ -30,7 +30,6 @@ let utils = {
             return false;
         });
     },
-    // Query<any> | Promise<PaginateResult<any>>
     to: function (promise) {
         return __awaiter(this, void 0, void 0, function* () {
             return promise
@@ -115,17 +114,6 @@ let utils = {
             return;
         });
     },
-    //  interface Request {
-    //         /** `Multer.File` object populated by `single()` middleware. */
-    //         file: Multer.File;
-    //         /**
-    //          * Array or dictionary of `Multer.File` object populated by `array()`,
-    //          * `fields()`, and `any()` middleware.
-    //          */
-    //         files: {
-    //             [fieldname: string]: Multer.File[];
-    //         } | Multer.File[];
-    //     }
     parseImgData: function (files) {
         return __awaiter(this, void 0, void 0, function* () {
             let arr = [];

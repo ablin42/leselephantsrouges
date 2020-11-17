@@ -28,7 +28,7 @@ const Image_1 = __importDefault(require("../models/Image"));
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
 aws_sdk_1.default.config.region = process.env.AWS_REGION;
 const BUCKET = "" + process.env.S3_BUCKET;
-require("dotenv").config({ path: '../.env' });
+require("dotenv").config({ path: "../.env" });
 const limiter = express_rate_limit_1.default({
     store: new rate_limit_mongo_1.default({
         uri: process.env.DB_CONNECTION,
@@ -63,13 +63,23 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.status(200).json({ error: true, message: err.message });
     }
 }));
+router.get("/:id", setVideo, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        return res.status(200).json({ error: false, video: req.video });
+    }
+    catch (err) {
+        console.log("ERROR ACCESSING VIDEO:", err, req.headers);
+        return res.status(200).json({ error: true, message: err.message });
+    }
+}));
 router.post("/", multer_1.default, errorHandler, vVideo, setUser, authUser, authRole(ROLE.ADMIN), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield utils_1.default.checkValidity(req);
         const obj = {
             title: req.body.title,
             description: req.body.description,
-            url: yield utils_1.default.parseUrl(req.body.url),
+            url: req.body.url,
+            parsedUrl: yield utils_1.default.parseUrl(req.body.url),
             isFiction: req.body.isFiction,
             authors: yield utils_1.default.parseAuthors(req.body.authors)
         };
@@ -90,14 +100,16 @@ router.post("/", multer_1.default, errorHandler, vVideo, setUser, authUser, auth
         return res.status(200).json({ error: true, message: err.message });
     }
 }));
-router.post("/:id", multer_1.default, errorHandler, vVideo, setVideo, setUser, authUser, authRole(ROLE.ADMIN), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+//setUser, authUser, authRole(ROLE.ADMIN),
+router.post("/:id", multer_1.default, errorHandler, vVideo, setVideo, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield utils_1.default.checkValidity(req);
         const id = mongo_sanitize_1.default(req.params.id);
         const obj = {
             title: req.body.title,
             description: req.body.description,
-            url: yield utils_1.default.parseUrl(req.body.url),
+            url: req.body.url,
+            parsedUrl: yield utils_1.default.parseUrl(req.body.url),
             isFiction: req.body.isFiction,
             authors: yield utils_1.default.parseAuthors(req.body.authors)
         };

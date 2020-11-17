@@ -16,7 +16,7 @@ import Image from "../models/Image";
 import aws from "aws-sdk";
 aws.config.region = process.env.AWS_REGION;
 const BUCKET = "" + process.env.S3_BUCKET;
-require("dotenv").config({ path: '../.env' });
+require("dotenv").config({ path: "../.env" });
 
 const limiter = rateLimit({
 	store: new MongoStore({
@@ -54,13 +54,23 @@ router.get("/", async (req, res) => {
 	}
 });
 
+router.get("/:id", setVideo, async (req, res) => {
+	try {
+		return res.status(200).json({ error: false, video: req.video });
+	} catch (err) {
+		console.log("ERROR ACCESSING VIDEO:", err, req.headers);
+		return res.status(200).json({ error: true, message: err.message });
+	}
+});
+
 router.post("/", upload, errorHandler, vVideo, setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
 	try {
 		await utils.checkValidity(req);
 		const obj = {
 			title: req.body.title,
 			description: req.body.description,
-			url: await utils.parseUrl(req.body.url),
+			url: req.body.url,
+			parsedUrl: await utils.parseUrl(req.body.url),
 			isFiction: req.body.isFiction,
 			authors: await utils.parseAuthors(req.body.authors)
 		};
@@ -81,15 +91,16 @@ router.post("/", upload, errorHandler, vVideo, setUser, authUser, authRole(ROLE.
 		return res.status(200).json({ error: true, message: err.message });
 	}
 });
-
-router.post("/:id", upload, errorHandler, vVideo, setVideo, setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
+//setUser, authUser, authRole(ROLE.ADMIN),
+router.post("/:id", upload, errorHandler, vVideo, setVideo, async (req, res) => {
 	try {
 		await utils.checkValidity(req);
 		const id = sanitize(req.params.id);
 		const obj = {
 			title: req.body.title,
 			description: req.body.description,
-			url: await utils.parseUrl(req.body.url),
+			url: req.body.url,
+			parsedUrl: await utils.parseUrl(req.body.url),
 			isFiction: req.body.isFiction,
 			authors: await utils.parseAuthors(req.body.authors)
 		};

@@ -31,7 +31,6 @@ function PostEvent() {
 
 	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-
 		let formData = new FormData();
 		let fileError = checkFile(file);
 
@@ -53,9 +52,7 @@ function PostEvent() {
 		formData.append("price", form.price);
 
 		axios
-			.post("/api/events/", {
-				body: formData
-			})
+			.post("/api/events/", formData)
 			.then(function (response) {
 				if (!response.data.error) window.location.href = "/";
 				else {

@@ -43,9 +43,7 @@ function PostVideo() {
 		formData.append("isFiction", form.isFiction.toString());
 
 		axios
-			.post("/api/videos/", {
-				body: formData
-			})
+			.post("/api/videos/", formData)
 			.then(function (response) {
 				if (!response.data.error) window.location.href = "/";
 				else {
