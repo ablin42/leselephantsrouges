@@ -48,8 +48,7 @@ router.get("/:id", setEvent, async (req, res) => {
 	}
 });
 
-//setUser, authUser, authRole(ROLE.ADMIN),
-router.post("/", upload, errorHandler, vEvent, async (req, res) => {
+router.post("/", upload, errorHandler, vEvent, setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
 	try {
 		await utils.checkValidity(req);
 		const obj = {
@@ -84,8 +83,7 @@ router.post("/", upload, errorHandler, vEvent, async (req, res) => {
 	}
 });
 
-//setUser, authUser, authRole(ROLE.ADMIN),
-router.post("/:id", upload, errorHandler, vEvent, setEvent, async (req, res) => {
+router.post("/:id", upload, errorHandler, vEvent, setEvent, setUser, authUser, authRole(ROLE.ADMIN), async (req, res) => {
 	try {
 		await utils.checkValidity(req);
 		const id = sanitize(req.params.id);

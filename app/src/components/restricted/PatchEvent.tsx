@@ -249,7 +249,6 @@ function WrapEventComponents() {
 			try {
 				let url = "/api/events/" + id;
 				const response = await axios.get(url);
-				console.log(response, "agli");
 
 				if (!response.data.error) setData(response.data.event);
 				else {
@@ -266,8 +265,6 @@ function WrapEventComponents() {
 			}
 		})();
 	}, [id]);
-
-	console.log(data, loadState);
 
 	return data.title.length ? (
 		<>

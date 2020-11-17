@@ -32,13 +32,13 @@ exports.default = {
                     date: videos[i].date,
                     createdAt: videos[i].createdAt,
                     updatedAt: videos[i].updatedAt,
-                    coverPath: undefined,
+                    mainImg: undefined,
                     __v: videos[i].__v
                 };
                 let [err, img] = yield utils_1.default.to(Image_1.default.findOne({ _itemId: videos[i]._id, itemType: "cover" }));
                 if (err || !img)
                     throw new Error(errorMessages_1.default.fetchImg);
-                obj.coverPath = img.path;
+                obj.mainImg = img.path;
                 arr.push(obj);
             }
             return arr;

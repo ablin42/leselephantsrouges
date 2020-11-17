@@ -22,7 +22,6 @@ interface Video {
 
 export default {
 	fetchMainImg: async function (videos: Array<Video>) {
-		// need video event
 		let arr = [];
 		for (let i = 0; i < videos.length; i++) {
 			let obj = {
@@ -36,13 +35,13 @@ export default {
 				date: videos[i].date,
 				createdAt: videos[i].createdAt,
 				updatedAt: videos[i].updatedAt,
-				coverPath: undefined,
+				mainImg: undefined,
 				__v: videos[i].__v
 			};
 
 			let [err, img] = await utils.to(Image.findOne({ _itemId: videos[i]._id, itemType: "cover" }));
 			if (err || !img) throw new Error(ERROR_MESSAGE.fetchImg);
-			obj.coverPath = img.path;
+			obj.mainImg = img.path;
 
 			arr.push(obj);
 		}

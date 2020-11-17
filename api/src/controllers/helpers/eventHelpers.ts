@@ -22,7 +22,6 @@ interface Event {
 
 export default {
 	fetchMainImg: async function (events: Array<Event>) {
-		// needs event interface
 		let arr = [];
 		for (let i = 0; i < events.length; i++) {
 			let obj = {
@@ -40,13 +39,13 @@ export default {
 				address: events[i].address, // maybe parse
 				createdAt: events[i].createdAt,
 				updatedAt: events[i].updatedAt,
-				imgPath: undefined,
+				mainImg: undefined,
 				__v: events[i].__v
 			};
 
 			let [err, img] = await utils.to(Image.findOne({ _itemId: events[i]._id, itemType: "event" }));
 			if (err) throw new Error(ERROR_MESSAGE.fetchImg);
-			if (img) obj.imgPath = img.path;
+			if (img) obj.mainImg = img.path;
 
 			arr.push(obj);
 		}

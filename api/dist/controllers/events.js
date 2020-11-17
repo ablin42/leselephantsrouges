@@ -58,8 +58,7 @@ router.get("/:id", setEvent, (req, res) => __awaiter(void 0, void 0, void 0, fun
         return res.status(200).json({ error: true, message: err.message });
     }
 }));
-//setUser, authUser, authRole(ROLE.ADMIN),
-router.post("/", multer_1.default, errorHandler, vEvent, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/", multer_1.default, errorHandler, vEvent, setUser, authUser, authRole(ROLE.ADMIN), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield utils_1.default.checkValidity(req);
         const obj = {
@@ -94,12 +93,10 @@ router.post("/", multer_1.default, errorHandler, vEvent, (req, res) => __awaiter
         return res.status(200).json({ error: true, message: err.message });
     }
 }));
-//setUser, authUser, authRole(ROLE.ADMIN),
-router.post("/:id", multer_1.default, errorHandler, vEvent, setEvent, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/:id", multer_1.default, errorHandler, vEvent, setEvent, setUser, authUser, authRole(ROLE.ADMIN), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield utils_1.default.checkValidity(req);
         const id = mongo_sanitize_1.default(req.params.id);
-        console.log(req.body);
         const obj = {
             title: req.body.title,
             description: req.body.description,
