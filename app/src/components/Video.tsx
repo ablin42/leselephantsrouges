@@ -5,17 +5,22 @@ import "../main.css";
 import { addAlert, createAlertNode } from "./utils/alert";
 
 interface VideoData {
-	_id: String;
+	_id: string;
 	title: string;
 	description: string;
 	url: string;
 	isFiction: boolean;
-	authors: string;
+	authors: Array<string>;
 	mainImg: string;
+	date: string;
 }
 
-function SingleVideo({ video, isLogged }: any) {
-	//any
+interface SingleVidProp {
+	video: VideoData;
+	isLogged: boolean;
+}
+
+function SingleVideo({ video, isLogged }: SingleVidProp) {
 	const renderEditBtn = () => {
 		if (isLogged) {
 			return (
@@ -63,8 +68,7 @@ function SingleVideo({ video, isLogged }: any) {
 	);
 }
 
-function Videos({ isLogged }: any) {
-	//any
+function Videos(isLogged: boolean) {
 	let [data, setData] = useState<Array<VideoData>>([]);
 	const [loadState, setLoad] = useState<string>("Loading...");
 

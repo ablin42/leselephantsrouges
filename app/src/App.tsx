@@ -67,11 +67,11 @@ function App() {
 						<PostVideo></PostVideo>
 					</ProtectedRoute>
 
-					<ProtectedRoute path="/Event/Post" isEnabled={isLogged}>
+					<ProtectedRoute exact path="/Event/Post" isEnabled={isLogged}>
 						<PostEvent></PostEvent>
 					</ProtectedRoute>
 
-					<ProtectedRoute exact path="/Video/Patch" isEnabled={isLogged}>
+					<ProtectedRoute path="/Video/Patch" isEnabled={isLogged}>
 						<PatchVideo></PatchVideo>
 					</ProtectedRoute>
 
@@ -90,14 +90,44 @@ function App() {
 					<Route exact path="/">
 						<Contact></Contact>
 						<hr />
-						<Event isLogged={isLogged}></Event>
+						<Event {...isLogged}></Event>
 						<hr />
-						<Video isLogged={isLogged}></Video>
+						<Video {...isLogged}></Video>
 					</Route>
 
 					<Route component={NotFound} />
 				</Switch>
 			</div>
+
+			{/* <svg id="loader" className="rotating" width="410" height="410" viewBox="0 0 410 410">
+				<defs>
+					<clipPath id="clip-Web_1920_1">
+						<rect width="410" height="410" />
+					</clipPath>
+				</defs>
+				<g id="Web_1920_1" data-name="Web 1920 – 1" clip-path="url(#clip-Web_1920_1)">
+					<rect width="410" height="410" fill="rgba(46,46,46,0)" />
+					<g id="Group_1" data-name="Group 1" transform="translate(-724 -332)">
+						<circle id="Ellipse_1" data-name="Ellipse 1" cx="200" cy="200" r="200" transform="translate(729 337)" fill="#fff" />
+						<path
+							id="Subtraction_1"
+							data-name="Subtraction 1"
+							d="M593,299H393V99a201.476,201.476,0,0,1,40.307,4.063,198.9,198.9,0,0,1,71.515,30.093,200.582,200.582,0,0,1,72.461,87.994,198.992,198.992,0,0,1,11.654,37.542A201.48,201.48,0,0,1,593,299Z"
+							transform="translate(536 238)"
+							fill="#f22424"
+						/>
+						<circle
+							id="Ellipse_2"
+							data-name="Ellipse 2"
+							cx="187.5"
+							cy="187.5"
+							r="187.5"
+							transform="translate(742 350)"
+							fill="#1c1c1c"
+						/>
+					</g>
+				</g>
+			</svg> */}
 
 			<footer className="invert">
 				<p className="footer-text">

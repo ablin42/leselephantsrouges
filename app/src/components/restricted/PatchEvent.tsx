@@ -22,7 +22,7 @@ interface UrlType {
 	id: string;
 }
 
-function PatchEvent({ data }: any) {
+function PatchEvent(data: PatchEventForm) {
 	const { id } = useParams<UrlType>();
 	let [file, setFile] = useState<File | null>(null);
 	let [form, setForm] = useState<PatchEventForm>(data);
@@ -269,7 +269,7 @@ function WrapEventComponents() {
 	return data.title.length ? (
 		<>
 			{/* <Shortened id={state._id} longUrl={state.longUrl} shortUrl={state.shortUrl} /> */}
-			<PatchEvent data={data}></PatchEvent>
+			<PatchEvent {...data}></PatchEvent>
 			<DelEvent></DelEvent>
 		</>
 	) : (

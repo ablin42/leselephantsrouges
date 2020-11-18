@@ -19,8 +19,7 @@ interface UrlType {
 	id: string;
 }
 
-function PatchVideo({ data }: any) {
-	//any
+function PatchVideo(data: PatchVideoForm) {
 	const { id } = useParams<UrlType>();
 	let [file, setFile] = useState<File | null>(null);
 	let [form, setForm] = useState<PatchVideoForm>(data);
@@ -227,7 +226,7 @@ function WrapVideoComponents() {
 	return data.title.length ? (
 		<>
 			{/* <Shortened id={state._id} longUrl={state.longUrl} shortUrl={state.shortUrl} /> */}
-			<PatchVideo data={data}></PatchVideo>
+			<PatchVideo {...data}></PatchVideo>
 			<DelVideo></DelVideo>
 		</>
 	) : (

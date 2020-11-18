@@ -13,13 +13,16 @@ interface EventData {
 	address: string;
 	url: string;
 	price: string;
-	staff: string;
+	staff: Array<string>;
 	mainImg: string;
 }
 
-function SingleEvent({ event, isLogged }: any) {
-	//any
+interface SingleEventProp {
+	event: EventData;
+	isLogged: boolean;
+}
 
+function SingleEvent({ event, isLogged }: SingleEventProp) {
 	const renderEditBtn = () => {
 		if (isLogged) {
 			return (
@@ -76,8 +79,7 @@ function SingleEvent({ event, isLogged }: any) {
 	);
 }
 
-function Event({ isLogged }: any) {
-	//any
+function Event(isLogged: boolean) {
 	let [data, setData] = useState<Array<EventData>>([]);
 	const [loadState, setLoad] = useState<string>("Loading...");
 
